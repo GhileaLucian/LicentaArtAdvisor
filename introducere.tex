@@ -1,0 +1,103 @@
+\chapter{Introducere}
+\label{ch:introducere}
+
+\section{Contextul proiectului}
+\label{sec:intro-context}
+
+Arta picturală a fost dintotdeauna un mediu privilegiat de exprimare a emoțiilor. Prin culoare, lumină, compoziție și textură, artiștii transmit stări nuanțate, adesea simultane, care solicită din partea publicului atât sensibilitate estetică, cât și un minim repertoriu interpretativ. În era accesului digital la patrimoniu, „a vedea" nu înseamnă automat „a înțelege": utilizatorul ajunge ușor la imagine, dar rămâne adesea fără repere afective explicite.
+
+În acest context, proiectele de mediere culturală pot beneficia de contribuția interdisciplinară a informaticii și științelor cognitive. Inteligența artificială aplicată imaginilor, psihologia afectului și designul centrat pe utilizator converg către instrumente capabile să conecteze percepția cu interpretarea. O prezentare afectivă clară, sobră și accesibilă are valoare educațională pentru publicul larg, valoare curatorială pentru organizarea conținutului în medii digitale și valoare de cercetare pentru testarea ipotezelor despre relația dintre indicii vizuali și trăirile asociate.
+
+Proiectul ArtAdvisor se înscrie în această zonă de intersecție dintre știința datelor vizuale și studiile umaniste, vizând construirea unei punți între imagine și înțelegerea afectivă pe care o poate genera. Accentul cade pe calitatea comunicării către utilizator și pe caracterul explicabil al rezultatului, astfel încât experiența să fie utilă atât în contexte educaționale, cât și în explorarea individuală a colecțiilor.
+
+\section{Motivație și impact}
+\label{sec:intro-motivatie}
+
+Necesitatea unei punți între percepția vizuală și interpretarea afectivă rezultă din trei observații: (i) publicul larg are acces facil la imagini, dar dificil la sensurile lor afective; (ii) curatorii și educatorii caută instrumente standardizate pentru a comunica nuanțe emoționale în medii digitale; (iii) cercetarea computațională a afectului în artă oferă astăzi cadre teoretice și date relevante, dar are nevoie de formate de prezentare pe înțelesul publicului.
+
+Din această perspectivă, ArtAdvisor contribuie în mod pragmatic la medierea culturală: transformă scoruri abstracte în rezultate lizibile, utile și verificabile, orientate spre utilitatea educațională și cercetare aplicată.
+
+\section{Formularea problemei}
+\label{sec:intro-problema}
+
+Emoția artistică este adesea polifonică: aceeași lucrare poate îmbina calmul cu misterul, melancolia cu speranța sau tensiunea cu uimirea. În pictură, astfel de efecte apar din interacția factorilor locali (tușă, contur, textură) cu factorii globali (echilibru compozițional, direcții dominante, raporturi cromatice).
+
+Problema practică vizată este trecerea de la percepție la interpretare afectivă în era digitală, oferind publicului indicii lizibile despre emoțiile pe care o imagine le poate comunica, fără a presupune expertiză de specialitate. Aceasta se formulează ca o problemă de clasificare multi-etichetă, unde o singură imagine poate exprima simultan mai multe emoții relevante.
+
+\section{Delimitarea domeniului}
+\label{sec:intro-domeniu}
+
+Tema acestei lucrări este formulată ca problemă de recunoaștere și comunicare a emoțiilor în pictură din perspectivă computațională. Pentru fiecare imagine de operă picturală se construiește un profil emoțional care surprinde co-prezența mai multor emoții relevante, iar rezultatul este prezentat într-o formă lizibilă și prietenoasă publicului nespecialist.
+
+\subsection{Delimitări și clarificări}
+
+\begin{itemize}
+  \item \textbf{Domeniul vizat}: pictură (imagini statice). Nu sunt abordate audio, video sau alte forme artistice.
+  \item \textbf{Formularea}: multi-etichetă - o lucrare poate exprima simultan mai multe emoții; rezultatul urmărit este un profil emoțional interpretabil pentru utilizator.
+  \item \textbf{Obiectivul}: sprijinul în înțelegerea afectivă și comunicarea rezultatelor într-un mod accesibil și explicabil.
+  \item \textbf{Limitări}: nu intră în sfera judecății estetice normative sau a evaluărilor valorice asupra operelor.
+\end{itemize}
+
+\subsection{Formulare operațională}
+
+\begin{itemize}
+  \item \textbf{Intrare}: imagine RGB a unei picturi
+  \item \textbf{Ieșire}: vector de scoruri pe 14 emoții și subsetul emoțiilor dominante
+  \item \textbf{Cadru decizional}: clasificare multi-etichetă cu praguri adaptive per emoție
+  \item \textbf{Evaluare}: F1-Macro, Average Precision (AP) și curbe Precision-Recall
+\end{itemize}
+
+\section{Public-țintă și scenarii de utilizare}
+\label{sec:intro-public}
+
+Soluția se adresează atât publicului larg, cât și profesioniștilor implicați în medierea culturală în mediul digital:
+
+\begin{itemize}
+  \item \textbf{Vizitator digital}: înțelege rapid profilul emoțional al unei lucrări printr-o prezentare prietenoasă și explicabilă
+  \item \textbf{Curator/educator}: folosește profilul emoțional pentru a organiza colecții online sau a crea parcursuri tematice centrate pe trăiri
+  \item \textbf{Cercetător aplicat}: validează ipoteze privind relația dintre indicii vizuali și percepția afectivă
+\end{itemize}
+
+\section{Criterii de succes}
+\label{sec:intro-criterii}
+
+Pentru a evalua utilitatea în contextul propus, adopt următoarele criterii conceptuale:
+
+\begin{itemize}
+  \item \textbf{Lizibilitate}: rezultatul este ușor de înțeles de către publicul nespecialist
+  \item \textbf{Explicabilitate}: există trasabilitate între scorurile pe emoții și decizia finală
+  \item \textbf{Coerentă metodologică}: terminologia și modul de raportare rămân constante
+  \item \textbf{Interoperabilitate}: formatul de ieșire este ușor de integrat în interfețe digitale
+\end{itemize}
+
+\section{Delimitarea contribuțiilor}
+\label{sec:intro-contributii}
+
+În cadrul proiectului colaborativ ArtAdvisor, contribuțiile sunt delimitate astfel:
+
+\textbf{Contribuția autorului (Lucian Ghilea):} modelarea teoretică și implementarea modulului de recunoaștere a emoțiilor din imagini de artă, formularea problemei multi-etichetă pentru emoții, dezvoltarea profilului emoțional interpretabil, crearea interfeței interactive Streamlit cu tab-uri dedicate (Galerie, Verificare, Chat Artist, Laborator Emoțional), integrarea funcționalității text-to-speech pentru accesibilitate îmbunătățită, vizualizări interactive pentru validarea academică și mecanisme de semnare emoțională a rezultatelor.
+
+\textbf{Contribuția colegului (David Iakabos):} clasificarea stilurilor artistice și identificarea autorilor, implementarea Grad-CAM îmbunătățit pentru explicabilitate vizuală, generarea interpretărilor narative prin servicii AI externe, dezvoltarea arhitecturii modulare și scalabile a sistemului, crearea sistemului de generare rapoarte HTML, implementarea chat-ului interactiv cu expert artificial și dezvoltarea sistemului de colectare feedback utilizator.
+
+Colaborarea s-a concentrat pe integrarea componentelor într-o arhitectură coerentă, optimizarea fluxului aplicației și asigurarea unei experiențe utilizator intuitive și explicabile. Prezenta lucrare se focalizează pe contribuția autorului în domeniul recunoașterii emoțiilor, menționând contextual elementele colaborative necesare pentru înțelegerea sistemului integrat.
+
+\section{Vocabular emoțional}
+\label{sec:intro-vocabular}
+
+Vocabularul utilizat cuprinde 14 emoții din taxonomia lui Plutchik, adaptat pentru analiza artei: Sadness, Trust, Fear, Disgust, Anger, Anticipation, Happiness, Love, Surprise, Optimism, Gratitude, Pessimism, Regret, Agreeableness.
+
+\section{Structura lucrării}
+\label{sec:intro-structura}
+
+Lucrarea este organizată în opt capitole:
+
+\begin{itemize}
+  \item \textbf{Capitolul 1} — Introducere: context, motivație, domeniu și delimitări
+  \item \textbf{Capitolul 2} — Obiectivele proiectului: formulare de proiectare și obiective măsurabile
+  \item \textbf{Capitolul 3} — Studiu bibliografic: stadiul domeniului și corpusuri de referință
+  \item \textbf{Capitolul 4} — Analiză și fundamentare teoretică: principii funcționale și modele abstracte
+  \item \textbf{Capitolul 5} — Proiectare de detaliu și implementare: schema aplicației și modulele principale
+  \item \textbf{Capitolul 6} — Testare și validare: protocol, metrici și rezultate
+  \item \textbf{Capitolul 7} — Manual de instalare și utilizare: ghid practic de folosire
+  \item \textbf{Capitolul 8} — Concluzii: sinteză și direcții viitoare
+\end{itemize}

@@ -1,0 +1,274 @@
+\chapter{Studiu bibliografic}
+\label{ch:studiubib}
+
+% Notă: pentru liste aerisite, aliniate la stânga, adăugați în preambul:
+% \usepackage{enumitem}
+% și folosiți [leftmargin=*, itemsep=2pt, topsep=2pt] în mediile de listă.
+
+\section{Context şi justificare}
+
+Interpretarea \emph{emoţiilor} comunicate de arta picturală a atras, în ultimele decenii, interesul convergent al psihologiei afective, neuroesteticii şi viziunii computaţionale. Cercetarea neuro–cognitivă a reliefat legături consistente între \emph{percepţia vizuală} şi \emph{răspunsul emoţional} la stimuli artistici \cite{zeki2001neural}, în timp ce progresele în \emph{învăţarea profundă} au făcut posibilă modelarea regularităţilor subtile din imagini, dincolo de reguli explicite. În acest cadru, tema recunoaşterii emoţiilor în picturi are o dublă motivaţie:
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
+  \item \textbf{Ştiinţifică}: testarea capacităţii modelelor moderne de a opera într-un spaţiu semantic \emph{nuanţat}, cu \emph{co-ocurenţe} şi \emph{ambiguităţi} inerente;
+  \item \textbf{Cultural–educaţională}: facilitarea unei \emph{medieri interpretative} accesibile, care să apropie publicul de dimensiunea afectivă a patrimoniului vizual.
+\end{itemize}
+
+\paragraph{Exemplu aplicat.} Într-un tablou romantic, cromatica caldă şi compoziţia deschisă pot induce simultan \emph{Optimism}, \emph{Încredere} şi \emph{Iubire}; o clasificare \emph{multi–etichetă} captează această co-prezenţă mai bine decât o formulare mono–etichetă.
+
+\section{Fundamente psihologice ale emoţiei în artă}
+
+\subsection{Modele canonice ale expresiei afective}
+
+Literatura de specialitate oferă câteva repere stabile:
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
+  \item \textbf{Emoţii universale} (Ekman) — un set restrâns de stări afective de bază, observabile intercultural \cite{ekman1992argument};
+  \item \textbf{Circumplexul afectiv} (Russell) — reprezentarea emoţiilor în planul \emph{valenţă}–\emph{arousal} \cite{russell1980circumplex}, cu susţineri neuroimagistice ulterioare \cite{posner2005circumplex};
+  \item \textbf{Roata emoţiilor} (Plutchik) — relaţii între emoţii \emph{primare} şi \emph{compuse}, utile pentru descrieri fine \cite{plutchik1980general};
+  \item \textbf{Appraisal} (Scherer) — emoţia ca rezultat al evaluărilor succesive ale stimulilor \cite{scherer2001appraisal}.
+\end{itemize}
+Aceste cadre justifică atât \emph{formulări categoriale} (clase discrete), cât şi \emph{abordări dimensionale} (scoruri continue) ale afectului.
+
+\paragraph{Implicaţie metodologică.} Pentru un sistem care produce scoruri per emoţie, calibrarea deciziilor (praguri) devine analogă unei \emph{proiecţii} din spaţiul continuu (valenţă/arousal sau scoruri sigmoide) în spaţiul deciziilor binare, specific interfeţei.
+
+\subsection{Particularităţi ale picturii clasice}
+
+În pictură, \emph{culoarea}, \emph{compoziţia}, \emph{lumina} şi \emph{textura} funcţionează ca vectori afectivi. Kandinsky a explorat potenţialul emoţional al culorii \cite{kandinsky1977concerning}; Arnheim a clarificat rolul structurilor gestaltiste \cite{arnheim1974art}; Berlyne a legat proprietăţi perceptive (noutate, complexitate) de preferinţa estetică \cite{berlyne1971aesthetics}. Dimensiunea \textbf{culturală} a interpretării rămâne esenţială \cite{mesquita1992cultural,kitayama1991culture}, motiv pentru care standardizarea etichetelor cere prudenţă.
+
+\paragraph{Exemplu aplicat.} Tonurile reci şi contrastul ridicat pot corespunde \emph{Frică}/\emph{Tristeţe} într-un context cultural, dar \emph{Serenitate} într-altul; seturile de date trebuie să surprindă diversitatea contextelor.
+
+\section{Corpusuri şi resurse pentru analiza afectivă}
+
+Progresul aplicat depinde de corpusuri \emph{curate} şi \emph{coerent adnotate}. Direcţii relevante:
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
+  \item \textbf{Affective image analysis în artă}: trăsături inspirate din psihologia artei (culoare, compoziţie, textură) \cite{machajdik2010affective,yanulevskaya2012emotional};
+  \item \textbf{Multimodalitate cu explicaţii text}: \emph{ArtEmis} combină etichete emoţionale cu descrieri narative, sporind \emph{explicabilitatea} \cite{achlioptas2021artemis}.
+\end{itemize}
+
+\noindent \textbf{Provocări recurente}:
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
+  \item \emph{Variabilitatea inter–evaluator}: acord mai scăzut decât în recunoaşterea expresiilor faciale;
+  \item \emph{Dezechilibrul de clasă}: emoţii rare sub–reprezentate.
+\end{itemize}
+
+\noindent \textbf{Soluţii practice} (extrase din literatura de ML aplicată):
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
+  \item \emph{Curăţare semantică} şi deduplicare; split-uri stratificate menţinând co-ocurenţe;
+  \item \emph{Eşantionare ponderată} şi \emph{pierderi ponderate} (ex. \texttt{pos\_weight} în BCE) pentru clase rare \cite{buda2018systematic};
+  \item Augmentări \emph{fotorealiste}, conservând semnificaţia cromatică/compusă a operei.
+\end{itemize}
+
+\subsection{Vizualizări ilustrative ale corpusurilor (grupate pe categorii)}
+Pentru a ancora discuţia despre seturile de date folosite în cercetarea afectului în artă, grupez vizualizările în trei categorii: (A) \textbf{WikiArt Emotions — statistici şi sursă de etichete}, (B) \textbf{ArtEmis — distribuţii şi co‑ocurenţe}, (C) \textbf{ArtEmis — exemple calitative textuale}. Aceste figuri nu sunt produse de sistemul implementat; ele oferă context şi motivează alegerile metodologice din cap. 4–5 (praguri per emoţie, metrici echitabile, sampling).
+
+\paragraph{(A) WikiArt Emotions — statistici şi sursă}
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.95\textwidth]{\detokenize{Folder nou (3)/a breakdown of average art ratings for each category–emotion pair in the WikiArt Emotions dataset. The scores range from-3 (most disliked) to 3 (most liked). Positive scores are shown in.jpg}}
+  \caption{Variaţia rating-urilor medii pe perechi \emph{categorie artistică}–\emph{emoţie} (WikiArt Emotions). Valorile (\textminus 3..3) oferă context de \emph{valenţă} pe categorii.}
+  \label{fig:we-ratings-by-style}
+\end{figure}
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.95\textwidth]{\detokenize{Folder nou (3)/Annotator agreement (Fleiss’ ) per emotion and art category. The number of items in each category is shown in Table 2..jpg}}
+  \caption{Acordul anotaţilor (Fleiss’ $\kappa$) pe emoţii şi categorii artistice. Diferenţele de consens justifică \emph{praguri per emoţie} şi raportare orientată pe F1‑Macro.}
+  \label{fig:we-fleiss}
+\end{figure}
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.7\textwidth]{\detokenize{Folder nou (3)/WikiArt.org’s page for the Mona Lisa us kabeled as evoking happiness, love, and trust.jpg}}
+  \caption{Exemplu de pagină WikiArt (Mona Lisa) etichetată ca evocând \emph{happiness}, \emph{love} şi \emph{trust} — ilustrare a \emph{surselor} şi a \emph{formatului} de etichetare.}
+  \label{fig:wikiart-monalisa}
+\end{figure}
+
+\paragraph{(B) ArtEmis — distribuţii şi co‑ocurenţe}
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.95\textwidth]{\detokenize{Folder nou (3)/Histogram of emotions captured in ArtEmis.jpg}}
+  \caption{Histograma emoţiilor în ArtEmis: distribuţii inegale care motivează \emph{ponderarea/eşantionarea} şi metrica \emph{F1‑Macro}.}
+  \label{fig:artemis-hist}
+\end{figure}
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.95\textwidth]{\detokenize{Folder nou (3)/applicable Emotion Percentage of votes for each emotion as being applicable and the percentage of items that.jpg}}
+  \caption{Procente de voturi pentru emoţiile considerate aplicabile şi proporţia de lucrări per emoţie (ArtEmis) — indică \emph{prevalenţe} şi posibile \emph{biasuri}.}
+  \label{fig:artemis-applicable}
+\end{figure}
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.95\textwidth]{\detokenize{Folder nou (3)/The proportion of votes for each pair of emotions. The number in cell (i,j) shows the proportion of items annotators labeled with both emotions i and j out of all the items annotators labeled.jpg}}
+  \caption{Co‑ocurenţe pe perechi de emoţii în ArtEmis. Corelaţiile afective sugerează dependenţe între etichete şi explică confuzii între \emph{vecini} emoţionali.}
+  \label{fig:artemis-cooc}
+\end{figure}
+
+\paragraph{(C) ArtEmis — exemple calitative (explicaţii text)}
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.95\textwidth]{\detokenize{Folder nou (3)/Examples of affective explanations mentioning the word ‘bird’.jpg}}
+  \caption{Explicaţii afective care menţionează „bird” în contexte diferite. Demonstrează \emph{legătura} dintre indiciile vizuale şi naraţiunea emoţională.}
+  \label{fig:artemis-bird-expl}
+\end{figure}
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.95\textwidth]{\detokenize{Folder nou (3)/Examplesofaneural speakerproductionsonunseenartworks..jpg}}
+  \caption{Mostre narative generate de „neural speaker” pe lucrări nevăzute (ArtEmis) — util pentru \emph{mediere culturală} şi ideea de \emph{explicare} a scorurilor.}
+  \label{fig:artemis-neural-speaker}
+\end{figure}
+
+
+\section{Metode computaţionale moderne pentru analiză vizuală}
+
+\subsection{Arhitecturi convoluţionale şi eficienţă}
+
+De la \textbf{AlexNet} \cite{krizhevsky2012imagenet} la \textbf{VGG} \cite{simonyan2014very} şi \textbf{ResNet} \cite{he2016deep}, CNN-urile au stabilit standardul, captând \emph{indicii locale} esenţiale (tuşe, margini, texturi). \textbf{EfficientNet} optimizează scalarea compusă pentru un compromis superior acurateţe–cost \cite{tan2019efficientnet}.
+
+\subsection{Transformere vizuale şi atenţie globală}
+
+\textbf{Vision Transformer} (ViT) introduce \emph{atenţia} în analiză vizuală, facilitând surprinderea \emph{contextului global} şi a relaţiilor compoziţionale \cite{dosovitskiy2020image}. Variante ierarhice (ex. \textbf{Swin}) cresc eficienţa \cite{liu2021swin}. \emph{Attention is All You Need} \cite{vaswani2017attention} fundamentează cadrul; în sarcini complexe, \textbf{DETR} sugerează formulări end-to-end \cite{carion2020end}. Pentru pictură, \emph{fuziunea local–globală} (CNN + Transformer) e naturală: \emph{detaliul pictural} şi \emph{compoziţia} se susţin reciproc.
+
+\paragraph{Exemplu aplicat.} Un ansamblu EfficientNet–B2 (detalii locale) + ViT–B/16 (relaţii globale) oferă complementaritate inductivă: pensulaţia şi texturile susţin semnalele cromatice, iar atenţia pe patch-uri captează coerenţa compoziţională.
+
+\section{Clasificare multi–etichetă şi decizie calibrată}
+
+Emoţiile pot \emph{coexista} în aceeaşi operă; prin urmare, formularea firească este \textbf{multi–etichetă} \cite{zhang2014review}. Strategiile includ transformări ale problemei (One–vs–All) versus modele native \cite{boutell2004learning}. În practică:
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
+  \item \textbf{BCEWithLogitsLoss} — stabilitate numerică pentru scoruri independente;
+  \item \textbf{Focal Loss} — utilă pentru clase rare şi exemple dificile \cite{lin2017focal};
+  \item \textbf{Praguri adaptive per clasă} — optimizate pe validare, controlează explicit \emph{precizie–rechemare}.
+\end{itemize}
+
+\paragraph{Soluţie concretă (decizie).} Se scanează un grid de praguri (ex. 0.10–0.90) pentru fiecare emoţie; se reţine pragul care maximizează F1 pe validare — o metodă simplă, robustă şi reproductibilă pentru seturi dezechilibrate.
+
+\section{Dezechilibre de clasă, regularizare şi optimizare}
+
+\subsection{Dezechilibru: efecte şi remedii}
+
+Dezechilibrele afective cer \emph{eşantionare/ponderare} atentă şi augmentări cu grijă la \emph{semnificaţia estetică}. Analize sistematice sunt oferite de \cite{buda2018systematic}. În plus faţă de \texttt{pos\_weight}:
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
+  \item \textbf{WeightedRandomSampler} — expune mai des exemple din clasele rare;
+  \item \textbf{Class–balanced loss} (ex. log efectiv al numărului de exemple) — penalizează raritatea mai corect;
+  \item \textbf{Focal loss} — concentrează învăţarea pe cazurile grele \cite{lin2017focal};
+  \item \textbf{SMOTE} — în general pentru date tabulare; la imagini, preferabil augmentări direcţionate \cite{chawla2002smote}.
+\end{itemize}
+
+\subsection{Optimizare şi stabilitate}
+
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
+  \item Optimizatori \textbf{AdamW} şi programatoare \textbf{ReduceLROnPlateau} pe metrică relevantă (F1–Macro);
+  \item \textbf{AMP} (mixed precision) pentru eficienţă şi stabilitate numerică;
+  \item Căutare hiperparametri: \textbf{random search} \cite{bergstra2012random}, \textbf{Hyperband} \cite{li2017hyperband}.
+\end{itemize}
+
+\paragraph{Exemplu aplicat.} Monitorizarea \emph{F1–Macro} în scheduler-ul \texttt{ReduceLROnPlateau} aliniază antrenarea cu obiectivul de \emph{echitate între clase}, nu doar cu minimizarea pierderii.
+
+\section{Robusteţe şi schimbări de distribuţie}
+
+\subsection{Perturbaţii fotorealiste şi stabilitate}
+
+În context artistic, transformări precum \emph{sepia}, \emph{monocrom}, variaţii de \emph{temperatură}, \emph{saturaţie}, \emph{luminozitate}, \emph{contrast} sunt frecvente (scanări, fotografiere în muzeu). Literatura privind robusteţea recomandă:
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
+  \item evaluarea stabilităţii scorurilor (norme L1/L2, număr de componente stabile);
+  \item augmentări care \emph{mimică} perturbaţiile din distribuţia-ţintă (data–centric AI).
+\end{itemize}
+
+\paragraph{Exemplu de protocol.} Se compară vectorul emoţional original cu cel rezultat după transformări controlate; se raportează variaţia totală L1, variaţia maximă pe componentă şi numărul de emoţii cu deviaţie sub prag (ex. 0.05).
+
+\subsection{Shift-uri de domeniu şi transfer}
+
+Modelele pre-antrenate pe ImageNet transferă bine la artă pentru \emph{indicii de nivel scăzut} (texturi/cromatica), dar pot necesita adaptări pentru \emph{semantica artistică}. Strategii:
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
+  \item \emph{Fine–tuning} progresiv al straturilor adânci, cu rate diferite de învăţare;
+  \item \emph{Regularizare} prin dropout şi augmentări compatibile artistic;
+  \item \emph{Ansambluri locale–globale} pentru a atenua gap-ul de domeniu.
+\end{itemize}
+
+\section{Explicabilitate şi interfeţe orientate spre utilizator}
+
+Transparenţa e esenţială în educaţie şi patrimoniu. \textbf{Grad-CAM} evidenţiază \emph{zonele vizuale} relevante \cite{selvaraju2017grad}; metode model–agnostice ca \textbf{LIME} \cite{ribeiro2016should} şi \textbf{SHAP} \cite{lundberg2017unified} oferă explicaţii locale/globale.
+
+\paragraph{Exemplu aplicat.} Suprapunerea unei hărţi Grad–CAM peste pânză poate arăta dacă modelul se bazează pe \emph{figuri centrale} sau pe \emph{fundal cromatic}, crescând încrederea utilizatorului.
+
+Din perspectiva designului, principiile \emph{centrate pe utilizator} \cite{norman2013design} şi regulile \emph{vizualizării interactive} \cite{shneiderman2003eyes} recomandă o comunicare \textbf{clară} şi \textbf{accesibilă}, însoţită de \emph{naraţiuni} scurte şi grafice lizibile.
+
+\section{Sisteme multimodale şi tendinţe recente}
+
+Integrarea \emph{vizualului} cu \emph{limbajul natural} susţine \textbf{explicabilitatea}. \textbf{ArtEmis} \cite{achlioptas2021artemis} arată că explicarea narativă a predicţiilor emoţionale îmbunătăţeşte înţelegerea publicului non–specialist, deschizând drumul către platforme educaţionale \emph{interactive} şi \emph{incluzive}. În mediul larg, modelele vizual–lingvistice indică posibilitatea \emph{justificărilor} coerente, dar necesită \emph{control} şi \emph{verificare} umană.
+
+\section{Metrici, validare şi bune practici de raportare}
+
+\subsection{Metrici recomandate}
+
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
+  \item \textbf{F1–Macro}: echitate între clase — reducerea biasului pentru clase frecvente;
+  \item \textbf{F1–Micro}, \textbf{F1–Samples}: perspective agregate complementare;
+  \item \textbf{AP/PR–curves} pe clasă: calitatea ordonării la sweep de prag;
+  \item \textbf{Exact–match} (subset accuracy): stricteţe la nivel de instanţă (mai dur în multi–etichetă).
+\end{itemize}
+
+\subsection{Reproductibilitate}
+
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
+  \item Fixarea seed-urilor, jurnalizare (TensorBoard), salvarea \emph{artefactelor} (checkpoints, praguri);
+  \item Publicarea \emph{pragurilor optime} şi a \emph{scripturilor de vizualizare} (PR/AP, histograme);
+  \item Separarea \emph{validării} de \emph{test} şi evitarea scurgerii informaţiei.
+\end{itemize}
+
+\paragraph{Exemplu aplicat.} Un script dedicat produce figurile standard (PR, F1 vs prag, histograme) şi exportă \texttt{thresholds.json} pentru inferenţă — asigurând trasabilitatea deciziilor.
+
+\section{Consideraţii etice şi de utilizare responsabilă}
+
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
+  \item \textbf{Variabilitate culturală}: etichetele şi interpretările sunt \emph{context–dependente};
+  \item \textbf{Transparenţă}: explicabilitate vizuală şi \emph{naraţiuni} care nu depăşesc competenţa datelor;
+  \item \textbf{Integritate digitală}: semnături invizibile (steganografie) pentru \emph{autentificarea} rezultatelor, fără a altera valoarea estetică percepută.
+\end{itemize}
+
+\section{Studii de caz şi soluţii concrete (sinteză aplicată)}
+
+\subsection{Formulare şi arhitectură}
+
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
+  \item \emph{Problemă}: co-prezenţă emoţională şi clase rare;
+  \item \emph{Soluţie}: multi–etichetă cu \texttt{BCEWithLogits}, ansamblu \textbf{EffNet–B2 + ViT–B/16}, \texttt{pos\_weight} şi \textbf{WeightedRandomSampler}.
+\end{itemize}
+
+\subsection{Decizie şi calibrare}
+
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
+  \item \emph{Problemă}: prag universal neoptimal;
+  \item \emph{Soluţie}: \textbf{praguri adaptive per clasă}, selectate pentru F1–Macro maxim pe validare.
+\end{itemize}
+
+\subsection{Robusteţe practică}
+
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
+  \item \emph{Problemă}: fotografiere necontrolată (muzee, arhive);
+  \item \emph{Soluţie}: \emph{laborator de robusteţe} cu perturbaţii fotorealiste şi metrici de stabilitate (L1, max, număr componente stabile).
+\end{itemize}
+
+\subsection{Explicabilitate şi mediere}
+
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
+  \item \emph{Problemă}: barieră de încredere şi interpretare;
+  \item \emph{Soluţie}: \textbf{Grad–CAM} pe stil/autor, grafic \emph{radar} pentru emoţii, \emph{naraţiuni} generate asistat pentru publicul larg.
+\end{itemize}
+
+\section{Sinteză: relevanţa pentru ArtAdvisor}
+
+Din literatura consultată se desprind idei–cheie, direct utile cadrului proiectului:
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
+  \item \textbf{Emoţiile sunt multi–dimensionale} şi frecvent \emph{co–prezente} — justifică \textbf{formularea multi–etichetă} şi \textbf{pragurile adaptive} \cite{zhang2014review,lin2017focal};
+  \item \textbf{Reprezentare local–global} (CNN + Transformer) — potrivită naturii picturale: \emph{detalii} + \emph{compoziţie} \cite{tan2019efficientnet,dosovitskiy2020image,liu2021swin};
+  \item \textbf{Dezechilibre \& metrici echitabile} — monitorizare \emph{F1–Macro}, raportare \emph{AP} per clasă \cite{buda2018systematic};
+  \item \textbf{Robusteţe la perturbaţii} — evaluare sistematică pe transformări fotorealiste (sepia, BW, saturaţie/contrast/lumină);
+  \item \textbf{Explicabilitate vizuală + naraţiuni} — necesare pentru \emph{mediere} (Grad–CAM, explicaţii text) \cite{selvaraju2017grad,achlioptas2021artemis};
+  \item \textbf{Reproductibilitate} — scripturi de vizualizare, salvarea pragurilor, loguri TensorBoard.
+\end{itemize}
+
+\medskip
+\noindent În ansamblu, corpusurile existente, modelele actuale şi principiile de proiectare recomandă o soluţie care îmbină \emph{rigoarea modelării} (multi–etichetă, praguri calibrate, metrici robuste) cu \emph{claritatea comunicării} (vizualizări + naraţiuni), ţintind o experienţă \textbf{explicabilă} şi \textbf{accesibilă} pentru publicul larg.
+
