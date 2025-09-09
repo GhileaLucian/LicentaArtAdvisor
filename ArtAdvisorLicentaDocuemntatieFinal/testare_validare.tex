@@ -1,0 +1,449 @@
+\chapter{Testare și validare}
+\label{ch:testare-validare}
+
+% Utilitar pentru perechi triadice (PR + Histogram + F1sweep) pe o emoție
+% \newcommand{\EmotionTriptych}[3]{% #1: Nume, #2: idx zecimal cu 2 cifre, #3: label fig
+% \begin{figure}[tb]
+%   \centering
+%   \begin{minipage}[t]{0.98\textwidth}
+%     \centering
+%     \includegraphics[width=0.9\linewidth]{Fig6_PR_#2_#1.png}
+%     \par\small\emph{Precision--Recall (AP) — #1}
+%   \end{minipage}\vspace{1mm}
+%   \begin{minipage}[t]{0.98\textwidth}
+%     \centering
+%     \includegraphics[width=0.9\linewidth]{Fig6_Hist_#2_#1.png}
+%     \par\small\emph{Histogramă scoruri sigmoid (pozitive vs. negative) — #1}
+%   \end{minipage}\vspace{1mm}
+%   \begin{minipage}[t]{0.98\textwidth}
+%     \centering
+%     \includegraphics[width=0.9\linewidth]{Fig6_F1sweep_#2_#1.png}
+%     \par\small\emph{F1(val) vs. prag (cu marcajul pragului optim) — #1}
+%   \end{minipage}
+%   \caption{Analiză completă per emoție — \textbf{#1}: curba PR (AP), separarea scorurilor și sensibilitatea F1 la prag.}
+%   \label{#3}
+% \end{figure}
+% }
+
+\section{Obiective și principii de evaluare}
+Acest capitol validează metodologia definită în Cap. 4 (formularea multi-etichet\u{a} și decizia cu praguri adaptive) și implementează protocoalele din Cap. 5 (antrenare, selecție de model, calibrare, inferență). Obiectivele sunt:
+- cuantificarea performanței pe un set de test ținut separat (fără scurgeri);
+- justificarea deciziei cu praguri per etichetă prin analize F1-sweep și histograme de scoruri;
+- evidențierea impactului dezechilibrelor și co-ocurențelor asupra metricilor;
+- documentarea resurselor, setărilor și pașilor necesari pentru reproducere.
+
+\section{Protocol experimental}
+Evaluarea respectă particularitățile multi-etichet\u{a} și \^{\i}ngheață toate deciziile pe baza validării înainte de test.
+
+\subsection{Date, splits, reproducibilitate}
+- Corpus: WikiArt adnotat multi-etichet\u{a} (14 emoții) curățat cu scripturile 1\_curata\_imagini.py și pregatire\_finala.py (Cap. 5).
+- Split: train / validation / test, stratificat pe co-ocuren\c{t}e (menține corelațiile între etichete). Dimensiuni efective: Train: [de completat], Val: [de completat], Test: [de completat].
+- Reproducibilitate: seed global 42; versiunile și logurile experimentelor în logs\_final\_definitiv/.
+
+\subsection{Model și hiper-parametri (rezumat din Cap. 5)}
+- Arhitectură: ansamblu local–global EmotionEnsemble (EfficientNet-B2 backbone + ViT-B/16 backbone, fuziune prin concatenare și clasificator BN + Dropout + Linear).
+- Antrenare: AdamW (lr=5e-5, weight\_decay=1e-3), loss BCEWithLogits; pos\_weight pe cele 14 clase pentru a compensa dez\c{s}ilibre (versiunea final\u{a} cu 14 emo\c{t}ii).
+- Augmentare: RandomResizedCrop(scale 0.7–1.0) + RandAugment(num\_ops=2, magnitude=9) pe train; resize + normalize pe val/test.
+- Sampling: WeightedRandomSampler pe train (sume inverse ale frecvențelor claselor active per e\c{s}antion).
+- Seleție checkpoint: cel mai bun F1-Macro pe validare; inferen\c{t}\u{a} în AMP.
+
+\subsection{Metode de decizie \c{s}i metrici}
+- Decizie per etichet\u{a}: sigmoid + prag optimizat pe validare (sweep $t \in [0.10, 0.90]$ cu pas 0.02; alegerea maximizeaz\u{a} F1 pentru clasa respectiv\u{a}); pragurile r\u{a}m\u{a}n \^{\i}nghe\c{t}ate pe test.
+- Metrica principal\u{a}: F1-Macro (egalizeaz\u{a} importan\c{t}a claselor frecvente/rare).
+- Metrice suplimentare: F1-Micro, F1-Samples, Exact-Match (subset accuracy), AP (aria sub curba PR) per etichet\u{a}.
+- Raportare: toate valorile pe test sunt ob\c{t}inute cu modelul \c{s}i pragurile selectate strict pe validare.
+
+\section{Distribuții, dezechilibre și co-ocurențe}
+Înainte de evaluare, caracterizăm setul prin frecvențe per etichetă și co-ocurențe (pentru a înțelege constrângerile intrinseci ale problemei).
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.86\textwidth]{Fig6_01_frecvente_totale.png}
+  \caption{Frecvența totală a etichetelor (număr de imagini cu eticheta activă). Dezechilibrele justifică sampling ponderat și decizie cu praguri per clasă.}
+  \label{fig:c6-frecvente}
+\end{figure}
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=0.7\textwidth]{Fig6_02_coocurente_csv.png}
+  \caption{Matrice de co-ocurență a emoțiilor. Co-ocurențe ridicate confirmă dependențe semantice (ex. fericire–optimism) și pot induce confuzii între vecini afectivi.}
+  \label{fig:c6-cooc}
+\end{figure}
+
+\noindent Observații:
+- distribuțiile long-tail impun praguri mai mici pentru clase rare pentru a recupera acoperirea;
+- perechi cu co-ocurențe ridicate (ex. Sadness–Pessimism) tind să producă suprapuneri de scor și decizii sensibile la prag.
+
+\section{Mod de rulare și regenerare a vizualizărilor}
+Toate figurile au fost generate cu make\_ch6\_plots.py (Cap. 5). Comandă tipică:
+\begin{verbatim}
+python make_ch6_plots.py ^
+  --annotations_file data/metadata_curat.csv ^
+  --val_dir data/validation --test_dir data/test ^
+  --models_dir models --tb_root logs_final_definitiv ^
+  --out_dir E:/ArtAdvisorLicentaDocumentatie/figs
+\end{verbatim}
+Scriptul \^{\i}ncarc\u{a} ultimul checkpoint din models/, calibreaz\u{a} pragurile pe validare, evalueaz\u{a} pe test, scrie Tab6\_metrics\_test.csv, macro\_f1\_test.txt și salveaz\u{a} toate imaginile Fig6\_* în directorul de output.
+
+\section{Rezultate agregate pe setul de test}
+Metricile globale (obținute cu pragurile optimizate pe validare și \^{\i}nghe\c{t}ate pe test):
+\begin{itemize}
+  \item F1-Macro: 0.7082
+  \item F1-Micro: 0.7332
+  \item F1-Samples: 0.7158
+  \item Exact-Match (subset accuracy): 0.0479
+\end{itemize}
+Exact-Match este așteptat scăzut în scenarii multi-etichetă cu vectori de 14 dimensiuni și co-ocurențe; F1-Macro rămâne criteriul relevant.
+
+\section{Analiză per emoție: PR/AP, separarea scorurilor și prag optim}
+Această secțiune integrează pentru fiecare emoție trei vizualizări complementare:
+- curba Precision–Recall (și implicit AP), care descrie separabilitatea scorurilor;
+- histograma scorurilor sigmoid pe pozitive vs. negative, care arată suprapunerea;
+- curba F1(val) funcție de prag, cu marcajul pragului optim folosit pe test.
+
+\subsection{Sadness și Trust}
+\noindent Pentru fiecare emoție includem trei mini-vizualizări: PR, histogramă scoruri și F1-sweep (prag optim marcat).
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_PR_00_Sadness.png}\\[-1mm]
+    {\scriptsize PR — Sadness}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_Hist_00_Sadness.png}\\[-1mm]
+    {\scriptsize Hist — Sadness}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_F1sweep_00_Sadness.png}\\[-1mm]
+    {\scriptsize F1-sweep — Sadness}
+  \end{minipage}
+  \caption{Analiză per emoție: Sadness.}
+  \label{fig:c6-sadness}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_PR_01_Trust.png}\\[-1mm]
+    {\scriptsize PR — Trust}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_Hist_01_Trust.png}\\[-1mm]
+    {\scriptsize Hist — Trust}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_F1sweep_01_Trust.png}\\[-1mm]
+    {\scriptsize F1-sweep — Trust}
+  \end{minipage}
+  \caption{Analiză per emoție: Trust.}
+  \label{fig:c6-trust}
+\end{figure}
+
+\subsection{Fear și Disgust}
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_PR_02_Fear.png}\\[-1mm]
+    {\scriptsize PR — Fear}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_Hist_02_Fear.png}\\[-1mm]
+    {\scriptsize Hist — Fear}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_F1sweep_02_Fear.png}\\[-1mm]
+    {\scriptsize F1-sweep — Fear}
+  \end{minipage}
+  \caption{Analiză per emoție: Fear.}
+  \label{fig:c6-fear}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_PR_03_Disgust.png}\\[-1mm]
+    {\scriptsize PR — Disgust}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_Hist_03_Disgust.png}\\[-1mm]
+    {\scriptsize Hist — Disgust}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_F1sweep_03_Disgust.png}\\[-1mm]
+    {\scriptsize F1-sweep — Disgust}
+  \end{minipage}
+  \caption{Analiză per emoție: Disgust.}
+  \label{fig:c6-disgust}
+\end{figure}
+
+\subsection{Anger și Anticipation}
+% \EmotionTriptych{04_Anger}{04}{fig:c6-trip-anger}
+\noindent Anger: F1=0.432, AP=0.378, prag=0.34. Suprapunere ridicată în histogramă; curba PR neregulată — sensibil la prag, risc de fals-pozitive dacă pragul scade.
+% \EmotionTriptych{05_Anticipation}{05}{fig:c6-trip-anticipation}
+\noindent Anticipation: F1=0.929, AP=0.932, prag=0.10. Separabilitate excelentă, platou F1 larg: decizie foarte robustă.
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_PR_04_Anger.png}\\[-1mm]
+    {\scriptsize PR — Anger}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_Hist_04_Anger.png}\\[-1mm]
+    {\scriptsize Hist — Anger}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_F1sweep_04_Anger.png}\\[-1mm]
+    {\scriptsize F1-sweep — Anger}
+  \end{minipage}
+  \caption{Analiză per emoție: Anger.}
+  \label{fig:c6-anger}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_PR_05_Anticipation.png}\\[-1mm]
+    {\scriptsize PR — Anticipation}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_Hist_05_Anticipation.png}\\[-1mm]
+    {\scriptsize Hist — Anticipation}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_F1sweep_05_Anticipation.png}\\[-1mm]
+    {\scriptsize F1-sweep — Anticipation}
+  \end{minipage}
+  \caption{Analiză per emoție: Anticipation.}
+  \label{fig:c6-anticipation}
+\end{figure}
+
+\subsection{Happiness și Love}
+% \EmotionTriptych{06_Happiness}{06}{fig:c6-trip-happiness}
+\noindent Happiness: F1=0.869, AP=0.862, prag=0.10. PR netă și histograme bine separate.
+% \EmotionTriptych{07_Love}{07}{fig:c6-trip-love}
+\noindent Love: F1=0.655, AP=0.709, prag=0.20. Ușoară suprapunere; prag moderat maximizează F1.
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_PR_06_Happiness.png}\\[-1mm]
+    {\scriptsize PR — Happiness}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_Hist_06_Happiness.png}\\[-1mm]
+    {\scriptsize Hist — Happiness}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_F1sweep_06_Happiness.png}\\[-1mm]
+    {\scriptsize F1-sweep — Happiness}
+  \end{minipage}
+  \caption{Analiză per emoție: Happiness.}
+  \label{fig:c6-happiness}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_PR_07_Love.png}\\[-1mm]
+    {\scriptsize PR — Love}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_Hist_07_Love.png}\\[-1mm]
+    {\scriptsize Hist — Love}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_F1sweep_07_Love.png}\\[-1mm]
+    {\scriptsize F1-sweep — Love}
+  \end{minipage}
+  \caption{Analiză per emoție: Love.}
+  \label{fig:c6-love}
+\end{figure}
+
+\subsection{Surprise și Optimism}
+% \EmotionTriptych{08_Surprise}{08}{fig:c6-trip-surprise}
+\noindent Surprise: F1=0.905, AP=0.946, prag=0.10. AP foarte mare; robust la variații de prag.
+% \EmotionTriptych{09_Optimism}{09}{fig:c6-trip-optimism}
+\noindent Optimism: F1=0.844, AP=0.843, prag=0.10. Separabilitate bună, stabilitate în decizie.
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_PR_08_Surprise.png}\\[-1mm]
+    {\scriptsize PR — Surprise}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_Hist_08_Surprise.png}\\[-1mm]
+    {\scriptsize Hist — Surprise}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_F1sweep_08_Surprise.png}\\[-1mm]
+    {\scriptsize F1-sweep — Surprise}
+  \end{minipage}
+  \caption{Analiză per emoție: Surprise.}
+  \label{fig:c6-surprise}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_PR_09_Optimism.png}\\[-1mm]
+    {\scriptsize PR — Optimism}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_Hist_09_Optimism.png}\\[-1mm]
+    {\scriptsize Hist — Optimism}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_F1sweep_09_Optimism.png}\\[-1mm]
+    {\scriptsize F1-sweep — Optimism}
+  \end{minipage}
+  \caption{Analiză per emoție: Optimism.}
+  \label{fig:c6-optimism}
+\end{figure}
+
+\subsection{Gratitude și Pessimism}
+% \EmotionTriptych{10_Gratitude}{10}{fig:c6-trip-gratitude}
+\noindent Gratitude: F1=0.630, AP=0.532, prag=0.26. Clasă mai dificilă; histograme cu suprapuneri explică AP modest.
+% \EmotionTriptych{11_Pessimism}{11}{fig:c6-trip-pessimism}
+\noindent Pessimism: F1=0.609, AP=0.598, prag=0.32. Prag mai ridicat reduce fals-pozitivele pe vecini afectivi (ex. Sadness).
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_PR_10_Gratitude.png}\\[-1mm]
+    {\scriptsize PR — Gratitude}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_Hist_10_Gratitude.png}\\[-1mm]
+    {\scriptsize Hist — Gratitude}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_F1sweep_10_Gratitude.png}\\[-1mm]
+    {\scriptsize F1-sweep — Gratitude}
+  \end{minipage}
+  \caption{Analiză per emoție: Gratitude.}
+  \label{fig:c6-gratitude}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_PR_11_Pessimism.png}\\[-1mm]
+    {\scriptsize PR — Pessimism}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_Hist_11_Pessimism.png}\\[-1mm]
+    {\scriptsize Hist — Pessimism}
+  \end{minipage}\hfill
+    \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_F1sweep_11_Pessimism.png}\\[-1mm]
+    {\scriptsize F1-sweep — Pessimism}
+  \end{minipage}
+  \caption{Analiză per emoție: Pessimism.}
+  \label{fig:c6-pessimism}
+\end{figure}
+
+\subsection{Regret și Agreeableness}
+% \EmotionTriptych{12_Regret}{12}{fig:c6-trip-regret}
+\noindent Regret: F1=0.482, AP=0.404, prag=0.22. Semnal vizual slab și confuzii; necesită date suplimentare/augmentări țintite.
+% \EmotionTriptych{13_Agreeableness}{13}{fig:c6-trip-agreeableness}
+\noindent Agreeableness: F1=0.559, AP=0.442, prag=0.12. PR fragmentată pe validare, sensibilitate ridicată la prag.
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_PR_12_Regret.png}\\[-1mm]
+    {\scriptsize PR — Regret}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_Hist_12_Regret.png}\\[-1mm]
+    {\scriptsize Hist — Regret}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_F1sweep_12_Regret.png}\\[-1mm]
+    {\scriptsize F1-sweep — Regret}
+  \end{minipage}
+  \caption{Analiză per emoție: Regret.}
+  \label{fig:c6-regret}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_PR_13_Agreeableness.png}\\[-1mm]
+    {\scriptsize PR — Agreeableness}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_Hist_13_Agreeableness.png}\\[-1mm]
+    {\scriptsize Hist — Agreeableness}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.32\textwidth}\centering
+    \includegraphics[width=\linewidth]{Fig6_F1sweep_13_Agreeableness.png}\\[-1mm]
+    {\scriptsize F1-sweep — Agreeableness}
+  \end{minipage}
+  \caption{Analiză per emoție: Agreeableness.}
+  \label{fig:c6-agreeableness}
+\end{figure}
+
+\section{Tabel sinteză per etichetă (test)}
+Valorile sunt extrase din Tab6\_metrics\_test.csv generat de make\_ch6\_plots.py (cu pragurile calibrate pe validare).
+
+\begin{table}[tb]\centering
+\caption{Performanțe per emoție pe test: F1, AP și prag optim}
+\label{tab:c6-per-label}
+\begin{tabular}{lccc}
+\toprule
+Emoție & F1 (test) & AP (test) & Prag \\
+\midrule
+Sadness & 0.711 & 0.669 & 0.240 \\
+Trust & 0.850 & 0.877 & 0.100 \\
+Fear & 0.725 & 0.724 & 0.180 \\
+Disgust & 0.715 & 0.684 & 0.100 \\
+Anger & 0.432 & 0.378 & 0.340 \\
+Anticipation & 0.929 & 0.932 & 0.100 \\
+Happiness & 0.869 & 0.862 & 0.100 \\
+Love & 0.655 & 0.709 & 0.200 \\
+Surprise & 0.905 & 0.946 & 0.100 \\
+Optimism & 0.844 & 0.843 & 0.100 \\
+Gratitude & 0.630 & 0.532 & 0.260 \\
+Pessimism & 0.609 & 0.598 & 0.320 \\
+Regret & 0.482 & 0.404 & 0.220 \\
+Agreeableness & 0.559 & 0.442 & 0.120 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Interpretare cheie.}
+- Clasele cu AP ridicat \c{s}i platouri F1 (Anticipation, Surprise, Happiness) sunt bine separate \^{\i}n spa\c{t}iul scorurilor; praguri mici ($\approx 0.10$) maximizeaz\u{a} recall fr\u{a} a pierde precizie.
+- Clase dificile (Anger, Regret, Agreeableness) au histograme cu suprapuneri ample \c{s}i PR neregulate; pragurile optimizate tind s\u{a} fie mai ridicate (Anger, Pes\c{s}imism) pentru a controla fals-pozitivele.
+- Pragurile optimizate sunt determinante: un prag fix $0.50$ ar penaliza sever clasele rare (sc\u{a}dere de F1 pe acestea).
+
+\section{De ce praguri adaptive? Analiz\u{a} tehnic\u{a} integrat\u{a}}
+Curbele F1(val) vs. prag arat\u{a} c\u{a} maximele per emo\c{t}ie apar la valori foarte diferite: 0.10--0.12 pentru clase cu scoruri bine separabile, 0.18--0.26 pentru clase moderate \c{s}i >0.30 pentru clase cu risc mare de fals-pozitive (de ex. Anger). Din histograme:
+- dac\u{a} distribu\c{t}ia pozitiv\u{a} \^{\i}mpinge spre scoruri mari, un prag mic p\u{a}streaz\u{a} precizia (curbe PR cu panta mare la recall \^{\i}nalt);
+- dac\u{a} distribu\c{t}iile sunt suprapuse, un prag mic cre\c{s}te recall dar compromite precizia; F1 maxim se mut\u{a} c\u{a}tre praguri mai mari.
+
+Acest comportament confirm\u{a} ra\c{t}ionamentul din Cap. 4: decizia multi-etichet\u{a} trebuie calibrat\u{a} per clas\u{a} pentru a controla \^{\i}n mod fin compromisurile precizie--acoperire.
+
+\section{Considerații metodologice și riscuri de validitate}
+- Scurgere de date: Pradoanele sunt calibrate exclusiv pe validare; checkpoint-ul este ales pe F1-Macro val; testul rămâne complet necunoscut până la raportare.
+- Dezechilibru: WeightedRandomSampler reduce biasul, dar nu elimină complet incertitudinile pentru clase rare; pos\_weight în BCEWithLogits ajută.
+- Co-ocurențe: distribuțiile corelate explică confuzii structurale (ex. Sadness–Pessimism); o modelare explcită a dependențelor (ex. cap structural pentru corelații) ar putea aduce câștig.
+- Label noise: adnotările emoționale pot fi inerent subiective; histogramele cu suprapuneri pot reflecta și incertitudini ale ground-truth-ului.
+
+\section{Resurse și setări de rulare}
+- Hardware: NVIDIA GTX 1660 (6GB VRAM), CPU [de completat], RAM [de completat].
+- Software: Windows 10/11 [de completat], Python 3.[x], PyTorch 2.0+, CUDA 11.8, cuDNN [de completat].
+- Hiper-parametri principali: batch size 8, lr 5e-5, AdamW, weight\_decay 1e-3, augmentare RandAugment(num\_ops=2, magnitude=9), RandomResizedCrop(0.7–1.0), AMP activ, sampler ponderat.
+- Re-run: toate graficele din acest capitol se regenerează cu make\_ch6\_plots.py; logurile TensorBoard/fișiere text sunt citite din logs\_final\_definitiv/ și log\_final\_definitiv.log.
+
+\section{Concluzii ale validării}
+- Modelul ansamblu (EffNetB2 + ViT-B/16) cu praguri adaptive per etichetă atinge F1-Macro 0.7082 pe test, cu AP ridicat pentru emoții bine separate și performanțe rezonabile pentru clase dificil separabile.
+- Analizele integrate (PR, histograme, F1-sweep) explică riguros de ce pragurile optime sunt eterogene și cum controlează compromisurile decizionale.
+- Limitări: lipsesc în această versiune figuri agregate la nivel micro/macro PR și o matrice de confuzii consolidată; pot fi adăugate extensii directe în make\_ch6\_plots.py.
+- Direcții: ablații numerice complete (CNN-only, ViT-only, ansamblu), TTA extins, modelare explicită a corelațiilor între etichete, colectare de date suplimentare pentru clasele greu separabile (Anger/Regret).
+
+\bigskip
+\noindent Notă practică: asigură-te că imaginile Fig6\_* se află în E:/ArtAdvisorLicentaDocumentatie/figs/ (sau în D:/LicentaArtWorks/ProiectLicenta/vizualizari\_licenta/ch6\_14emo/) și că \verb|\graphicspath| include aceste căi. Acest capitol a fost scris astfel încât figurile să fie introduse exact acolo unde sunt discutate, facilitând lectura tehnică „grafic–text–concluzie” pentru fiecare emoție.
+
