@@ -14,4 +14,7 @@
 *.vrb
 *.pdf
 figs/
+# Allow specific thesis figures
+!figs/Obiectivele.jpg
+!figs/Diagrama Arhitecturala.png
 logs/
