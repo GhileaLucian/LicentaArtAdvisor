@@ -1,0 +1,93 @@
+\chapter{Concluzii}
+\label{ch:concluzii}
+
+Acest capitol încheie lucrarea, sintetizând contribuțiile realizate, evaluând critic rezultatele şi conturând direcții clare de dezvoltare. Accentul cade pe modul în care analiza emoțională asistată de inteligență artificială poate fi îmbinată cu mecanisme de verificare a autenticității pentru a crește încrederea utilizatorilor şi valoarea practică a platformei \textbf{ArtAdvisor}.
+
+\section{Rezumatul contribuțiilor}
+Lucrarea îmbină dezvoltarea ML cu integrarea UI şi cu un modul de securitate ușor de folosit de către utilizatorul final. Pe scurt:
+\begin{enumerate}
+  \item \textbf{Ingineria datelor pentru emoții}
+  \begin{itemize}
+    \item Colectarea, filtrarea şi curățarea unui set de date dedicat recunoașterii emoțiilor în picturi; eliminarea intrărilor ambigue şi standardizarea etichetelor.
+    \item Construirea de fișiere CSV coerente şi direct utilizabile pentru antrenare/validare/test.
+  \end{itemize}
+
+  \item \textbf{Model multi--label pentru emoții (EfficientNet-B2 + ViT)}
+  \begin{itemize}
+    \item Antrenarea unui ansamblu CNN + Transformer pentru detecția simultană a mai multor emoții.
+    \item Calibrarea pragurilor \emph{per clasă} pe validare pentru decizii robuste.
+    \item Performanță finală competitivă pe test (F1-Macro $\approx$ 0.77), având în vedere complexitatea subiectivă a emoțiilor.
+  \end{itemize}
+
+  \item \textbf{Interfață modernă şi explorare interactivă}
+  \begin{itemize}
+    \item Taburi dedicate: \emph{Analiză Operă}, \emph{Galerie}, \emph{Verificare}, \emph{Chat Artist}, \emph{Laborator Emoțional}.
+    \item Experiență fluentă: vizualizări Grad-CAM, generare narativă şi \emph{text-to-speech}, filtre inteligente în Galerie.
+  \end{itemize}
+
+  \item \textbf{Verificare, autenticitate şi robustețe}
+  \begin{itemize}
+    \item \emph{Semnătură Digitală Emoțională} prin LSB, invizibilă, dar verificabilă.
+    \item Evaluarea calității cu PSNR (modificări invizibile pentru utilizator atunci când PSNR este ridicat, tipic $\geq 40$ dB).
+    \item Detectarea modificărilor (tamper) şi jurnal de audit; simulări adversariale exploratorii (FGSM/PGD) pentru a observa sensibilitățile.
+  \end{itemize}
+
+  \item \textbf{Arhitectură software modulară}
+  \begin{itemize}
+    \item Module independente, integrate coerent în orchestrarea aplicației, astfel încât verificarea să ruleze în paralel cu analiza artistică fără a afecta experiența utilizatorului.
+  \end{itemize}
+\end{enumerate}
+
+\paragraph{Împărțirea contribuțiilor}
+\emph{Lucian:} pregătirea şi curățarea datelor, ansamblul EfficientNetB2 + ViT pentru emoții (14 emoții, respectiv 8 emoții în variantele finale), antrenare şi optimizare, praguri adaptive, orchestrator de predicție, integrare în UI şi mecanismul de watermarking. \emph{David Iakabos:} interfața Streamlit (taburi, UX), clasificarea stilurilor şi autorilor, explicabilitate Grad-CAM, integrarea explicațiilor AI şi colectarea de feedback.
+
+\section{Analiză critică a rezultatelor}
+\subsection*{Puncte forte}
+\begin{itemize}
+  \item Modelul multi--label surprinde nuanțe emoționale coexistente; calibrarea pragurilor per clasă stabilizează deciziile.
+  \item Interfața ghidată pe taburi şi integrarea \emph{text-to-speech} cresc accesibilitatea şi potențialul educațional.
+  \item Sistemul de verificare este distinctiv: watermark-ul emoțional este invizibil, verificabil, iar PSNR confirmă că imaginea rămâne vizual neschimbată.
+  \item Simulările adversariale au evidențiat zonele sensibile, oferind o bază factuală pentru strategii viitoare de apărare.
+\end{itemize}
+
+\subsection*{Limitări}
+\begin{itemize}
+  \item Performanța pentru emoții rare sau subtile este constrânsă de diversitatea dataset-ului.
+  \item LSB, deși potrivit demonstrației şi ușor de verificat, este vulnerabil la compresii puternice sau editări agresive.
+  \item Rapoartele de verificare pot fi îmbogățite cu mai multe elemente vizuale orientate către non-tehnici.
+  \item Atacurile FGSM/PGD au fost explorate demonstrativ; mecanismele de apărare necesită consolidare şi testare sistematică.
+\end{itemize}
+
+\section{Dezvoltări şi îmbunătățiri ulterioare}
+\subsection*{Pe termen scurt}
+\begin{itemize}
+  \item Extinderea dataset-ului de emoții cu opere din mai multe culturi şi perioade istorice.
+  \item Arhitecturi îmbunătățite (de ex. EfficientNet-V2, ViT de generație nouă) şi reglaj fin al pragurilor.
+  \item UI de \emph{Verificare} cu vizualizări mai intuitive ale semnăturii şi diferențelor detectate.
+\end{itemize}
+
+\subsection*{Pe termen mediu}
+\begin{itemize}
+  \item Metode de watermarking mai robuste (rezistente la compresie şi la atacuri intenționate).
+  \item \emph{Adversarial training} pentru creșterea rezilienței la FGSM/PGD şi atacuri similare.
+  \item Mod colaborativ în \emph{Laborator Emoțional} pentru colectarea şi valorificarea feedback-ului utilizatorilor.
+\end{itemize}
+
+\subsection*{Pe termen lung}
+\begin{itemize}
+  \item Integrarea verificării într-un sistem distribuit cu audit trail securizat (ex. blockchain) pentru trasabilitate completă.
+  \item Extensii mobile pentru testarea autenticității în muzee sau galerii, în condiții reale.
+  \item Parteneriate educaționale (universități, muzee) pentru predarea securității digitale şi a AI-ului în artele vizuale.
+\end{itemize}
+
+\subsection*{Direcții de cercetare}
+\begin{itemize}
+  \item \emph{Explainable robustness}: combinarea explicabilității vizuale (Grad-CAM) cu măsuri de reziliență la atacuri.
+  \item Explorarea unor tactici avansate de atac/apărare (auto-attack, randomized smoothing) şi evaluare standardizată.
+  \item Analiza integrată emoții--autenticitate: cum modificările vizuale (tamper/adversarial) influențează percepția emoțională.
+\end{itemize}
+
+\section{Concluzii finale}
+Lucrarea demonstrează că \textbf{analiza emoțională} şi \textbf{verificarea autenticității} se completează natural în \textbf{ArtAdvisor}: sistemul nu doar clasifică şi povestește o operă, ci şi oferă garanții privind integritatea rezultatelor. Cu un F1-Macro de ordinul \textasciitilde 0.77 pentru recunoașterea emoțiilor şi cu un modul de verificare bazat pe watermarking LSB, PSNR şi teste adversariale exploratorii, contribuția este substanțială şi complementară față de componenta de stil şi autor. 
+
+Prin combinarea tehnicilor moderne de AI cu mecanisme de securitate, proiectul arată că încrederea în sisteme inteligente poate fi consolidată, iar aplicațiile rezultate pot genera impact real în educație, cercetare şi conservarea digitală a artei. În această viziune, inteligența artificială devine nu doar un instrument de clasificare, ci un \emph{partener de validare şi protecție}, deschizând direcții noi pentru aplicații culturale şi academice.

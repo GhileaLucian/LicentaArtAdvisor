@@ -1,0 +1,373 @@
+\chapter{Analiză și fundamentare teoretică}
+\label{ch:analiza}
+
+% Utilitare locale pentru diagrame simple, fără pachete suplimentare
+\newcommand{\boxblock}[2][0.86\linewidth]{\fbox{\parbox{#1}{\centering #2}}}
+\newcommand{\smallbox}[2][0.38\linewidth]{\fbox{\parbox{#1}{\centering #2}}}
+
+Acest capitol explică principiile funcționale ale soluției \textbf{ArtAdvisor} pentru \textbf{recunoașterea emoțiilor} în imagini artistice. Sunt prezentate: formularea teoretică a problemei (multi-etichetă), \textbf{arhitectura local–global} (ansamblu CNN + Transformer), procedura \textbf{deciziei calibrate prin praguri pe clasă}, principiile de \textbf{robustețe}, \textbf{explicabilitate} (hărți de atenție) și \textbf{trasabilitate} (semnătură invizibilă). Capitolul nu intră în detalii de implementare, ci fundamentează \textbf{logic} și \textbf{teoretic} soluția.
+
+\medskip
+\noindent\textbf{Ghid de lectură (pe scurt).}
+Dacă vrei o imagine de ansamblu: vezi Fig.~\ref{fig:arch} (arhitectura) și Fig.~\ref{fig:flow} (fluxul funcțional). Dacă vrei intuiție: vezi secțiunile „Explicație pe înțelesul tuturor” din fiecare subcapitol. Dacă vrei rigoare: urmărește formularea matematică din Sec.~\ref{sec:modelare} și criteriile din Sec.~\ref{sec:algoritmi}–\ref{sec:metrici}.
+
+\section{Modelarea problemei și principiul deciziei}
+\label{sec:modelare}
+
+\subsection{Formulare matematică}
+Considerăm spațiul imaginilor RGB $\mathcal{I}$ și un set de emoții $\mathcal{E}$ cu $|\mathcal{E}|=K$ (de ex., $K=14$). Problema este \textbf{multi-etichetă}: unei imagini $x\in\mathcal{I}$ i se asociază un \textbf{vector de scoruri}:
+\[
+f:\ \mathcal{I} \rightarrow [0,1]^K,\quad f(x)=\sigma(z(x)),\ \ \sigma\ \text{sigmoid, } z \text{ logits}.
+\]
+Decizia binară pe fiecare emoție $k$ se obține prin compararea cu un \textbf{prag specific clasei} $\tau_k$:
+\[
+\hat{y}_k = \mathbb{1}\big(\sigma(z_k) > \tau_k\big),\quad k=1,\dots,K.
+\]
+
+\subsection{Ipoteze, criterii, obiective}
+\noindent\textbf{Ipoteze-cheie:}
+\begin{itemize}
+  \item \textbf{Co-ocurență}: mai multe emoții pot fi simultan prezente.
+  \item \textbf{Dezechilibru de clasă}: frecvențe diferite ale emoțiilor în corpus.
+  \item \textbf{Shift de domeniu moderat}: opere variate stilistic, dar în același registru vizual/artistic.
+\end{itemize}
+
+\noindent\textbf{Criteriu principal de evaluare:} \textbf{F1-macro} (medie aritmetică a F1 per emoție), pentru echilibru între clase frecvente și rare.
+
+\subsection{Notări și convenții}
+\begin{table}[h]
+\centering
+\begin{tabular}{l p{0.65\linewidth}}
+\hline
+\textbf{Simbol} & \textbf{Semnificație} \\
+\hline
+$\mathcal{I}$ & spațiul imaginilor RGB \\
+$K$ & numărul de emoții (ex.: 14) \\
+$z\in\mathbb{R}^K$ & vectorul de \emph{logits} (ieșirea liniară a modelului) \\
+$\sigma(z)$ & aplicația sigmoidală element-cu-element (scoruri în $[0,1]$) \\
+$\tau_k$ & pragul de decizie (calibrat) pentru emoția $k$ \\
+$\hat{y}_k$ & decizia binară pentru emoția $k$ \\
+\hline
+\end{tabular}
+\caption{Notări și convenții folosite în capitol.}
+\label{tab:notatii}
+\end{table}
+
+\subsection{Explicație pe înțelesul tuturor: „Butonul de volum pe fiecare emoție”}
+Imaginează-ți că pentru fiecare emoție există un „buton de volum”. Modelul întoarce cât de tare se aude fiecare emoție (un scor între 0 și 1). Nu e nevoie să alegem o singură emoție: pot „cânta” mai multe simultan (co-ocurență). Pragul $\tau_k$ e ca un \emph{slider} personalizat: peste el, considerăm că emoția e „prezentă”; sub el, o lăsăm la „fundal”. De ce nu un singur prag pentru toate? Pentru că fiecare emoție are „volumul” ei natural în date—un standard diferit care cere un prag propriu, calibrat ca să fie corect.
+
+\section{Arhitectura abstractă: ansamblu local–global}
+\label{sec:arhitectura}
+
+\subsection{Bias inductiv complementar}
+Soluția îmbină:
+\begin{itemize}
+  \item \textbf{Backbone local (CNN)} — captează \textbf{indicii locale}: textură, contur, culoare.
+  \item \textbf{Backbone global (Transformer vizual)} — modelează \textbf{relații globale}: compoziție, dependențe long-range.
+\end{itemize}
+Fuziunea \textbf{la nivel de reprezentări} maximizează complementaritatea informațională.
+
+\subsection{Diagrama arhitecturii}
+\begin{figure}[ht]
+\centering
+\begin{tabular}{c}
+\boxblock{Imagine RGB} \\
+$\Downarrow$ \\
+\boxblock{Pre-procesare \& Augmentare (robustețe)} \\
+$\Downarrow$ \\
+\begin{tabular}{cc}
+\smallbox{Backbone local\\(CNN)} & \smallbox{Backbone global\\(Transformer vizual)} \\
+\end{tabular}\\
+$\Downarrow$ \\
+\boxblock{Concatenare reprezentări (local + global)} \\
+$\Downarrow$ \\
+\boxblock{Normalizare în lot + Dropout + Proiecție liniară} \\
+$\Downarrow$ \\
+\boxblock{Logits $z\in\mathbb{R}^K$ \quad $\rightarrow$ \quad Sigmoid $\sigma(z)$} \\
+$\Downarrow$ \\
+\boxblock{Praguri per clasă $\{\tau_k\}$ (calibrate pe validare)} \\
+$\Downarrow$ \\
+\boxblock{Vector emoții (multi-etichetă) $\hat{\mathbf{y}}\in\{0,1\}^K$} \\
+\end{tabular}
+\caption{Arhitectură conceptuală: combinare local–global și decizie multi-etichetă calibrată.}
+\label{fig:arch}
+\end{figure}
+
+\subsection{Explicație pe înțelesul tuturor: „Lupă + hartă”}
+Gândește-te la două moduri de a privi un tablou: (1) cu o \emph{lupă}, unde vezi tușa de pensulă și textura pânzei (local), și (2) cu o \emph{hartă}, unde vezi compoziția, direcțiile privirii, raportul figurilor (global). Sistemul nostru le folosește pe ambele, apoi combină „notele” lor într-o singură partitură emoțională. Este ca atunci când un critic discută atât detaliul cromatic, cât și povestea compozițională—ambele contribuie la „emoția finală”.
+
+\section{Pregătirea datelor și principii de robustețe}
+\label{sec:data}
+
+\subsection{Corpus, curățare și împărțire}
+\textbf{Corpus:} lucrări artistice adnotate emoțional. \textbf{Curățare:} verificare integritate imagini, aliniere metadate–fișiere. \textbf{Împărțire:} seturi disjuncte (antrenare / validare / test), cu menținerea diversității stilistice.
+
+\subsection{Dezechilibru și eșantionare}
+\textbf{Dezechilibrul} distribuțiilor pe emoții impune \textbf{ponderare} sau \textbf{eșantionare} adaptivă, pentru a evita dominația claselor frecvente.
+
+\begin{figure}[ht]
+\centering
+\begin{tabular}{c}
+\boxblock{Corpus inițial + metadate} \\
+$\Downarrow$ \\
+\boxblock{Validare fișiere, eliminare corupte/lipsă} \\
+$\Downarrow$ \\
+\boxblock{Aliniere metadate–imagini (indexare robustă)} \\
+$\Downarrow$ \\
+\boxblock{Împărțire: Train / Val / Test (disjunctă)} \\
+$\Downarrow$ \\
+\boxblock{Eșantionare ponderată / Ponderare în cost} \\
+\end{tabular}
+\caption{Flux teoretic pentru pregătirea datelor și controlul dezechilibrului.}
+\label{fig:dataflow}
+\end{figure}
+
+\subsection{Explicație pe înțelesul tuturor: „Corul echilibrat”}
+Dacă într-un cor auzi mereu doar sopranele, nu înseamnă că alții nu cântă—doar că sunt acoperiți. La fel, în date pot exista emoții „zgomotoase” (frecvente) care domină. Eșantionarea ponderată e ca un dirijor care ridică discret volumului altor voci, pentru ca toate emoțiile să se audă corect în \emph{antrenament} și, la final, în predicție.
+
+\section{Algoritmi și criterii de optimizare}
+\label{sec:algoritmi}
+
+\subsection{Învățare de reprezentări}
+\textbf{Local (CNN):} receptive fields ierarhice pentru \textbf{indicii locale}. 
+\textbf{Global (Transformer):} atenție multi-head pentru \textbf{dependențe de lungă distanță}. 
+\textbf{Fuziune la nivel de features:} concatenare urmată de normalizare, regularizare (\textbf{dropout}) și proiecție liniară către $K$ emoții.
+
+\subsection{Funcție obiectiv și optimizare}
+\begin{itemize}
+  \item \textbf{Binary Cross-Entropy cu logits} (BCEWithLogits): separă decizia pe emoții, compatibil cu multi-etichetă.
+  \item \textbf{Optimizare}: AdamW (\textbf{decădere pe greutate} stabilă).
+  \item \textbf{Programare LR}: reducere adaptivă pe validare (orientată spre \textbf{F1-macro}).
+  \item \textbf{Precizie mixtă}: crește eficiența fără a compromite stabilitatea.
+\end{itemize}
+
+\subsection{Tabel sinteză: alegeri teoretice}
+\begin{table}[h]
+\centering
+\begin{tabular}{l p{0.62\linewidth}}
+\hline
+\textbf{Componentă} & \textbf{Alegere teoretică (motivație)} \\
+\hline
+Reprezentare & Fuziune \textbf{local + global} (complementaritate inductivă) \\
+Cost & \textbf{BCE cu logits} (multi-etichetă, stabil numeric) \\
+Sampling & \textbf{Ponderare / eșantionare} (combaterea dezechilibrului) \\
+LR & \textbf{Reducere adaptivă} ghidată de F1-macro (validare) \\
+Decizie & \textbf{Praguri per clasă} (calibrare pe validare) \\
+Explicabilitate & \textbf{Hărți de atenție/activare} (trasabilitate cognitivă) \\
+\hline
+\end{tabular}
+\caption{Alegerea componentelor și motivația teoretică.}
+\label{tab:alegeri}
+\end{table}
+
+\subsection{Explicație pe înțelesul tuturor: „Antrenorul, dieta și ritmul”}
+Algoritmii de optimizare funcționează ca un antrenor: te împing să progresezi fără să te supraîncarce. Funcția de cost (BCE) spune \emph{„cât de departe ești de țintă”}, iar programarea ratei de învățare e ritmul—mai repede când e sigur, mai încet când apar greșeli. \emph{Dropout}-ul e „dieta”: renunți temporar la unele conexiuni ca să nu depinzi prea mult de ele, câștigând robusteză.
+
+\section{Decizie calibrată prin praguri per emoție}
+\label{sec:praguri}
+
+\subsection{Principiu}
+Datorită \textbf{prevalențelor diferite} ale emoțiilor, un \textbf{prag unic} introduce \emph{bias}. Se adoptă \textbf{praguri per clasă} $\{\tau_k\}$ alese prin \textbf{maximizarea F1} pe validare.
+
+\subsection{Fluxul deciziei}
+\begin{figure}[ht]
+\centering
+\begin{tabular}{c}
+\boxblock{Scoruri $\sigma(z)\in[0,1]^K$ pe setul de validare} \\
+$\Downarrow$ \\
+\boxblock{Pentru fiecare emoție $k$: scanare grilă pragmatică de praguri} \\
+$\Downarrow$ \\
+\boxblock{Maximizare $F1_k$  $\Rightarrow$  alegere $\tau_k^\star$} \\
+$\Downarrow$ \\
+\boxblock{Fixare $\{\tau_k^\star\}$ pentru test / producție} \\
+\end{tabular}
+\caption{Căutarea pragurilor per clasă și aplicarea lor în decizie.}
+\label{fig:thresholds}
+\end{figure}
+
+\subsection{Pași (schematic)}
+\begin{enumerate}
+  \item Colectează scorurile sigmoidale pe validare.
+  \item Pentru fiecare emoție $k$, \textbf{scanează praguri candidate} în $[0.1,0.9]$ (grilă fină).
+  \item Alege $\tau_k^\star$ care \textbf{maximizează} $F1_k$.
+  \item \textbf{Aplică} $\{\tau_k^\star\}$ la testare/predicție.
+\end{enumerate}
+
+\subsection{Explicație pe înțelesul tuturor: „Cofetarul și cuptorul”}
+Un cofetar nu coace toate prăjiturile la aceeași temperatură. Fiecare are rețeta sa. Pragurile per emoție sunt \emph{„temperaturile”} individuale: dacă le uniformizezi, unele ies crude, altele arse. Căutarea pragurilor (pe validare) înseamnă să găsești „punctul dulce” pentru fiecare emoție—locul unde precizia și acoperirea se echilibrează (F1 maxim).
+
+\section{Metrici de evaluare}
+\label{sec:metrici}
+
+\subsection{Rolul metricilor}
+\begin{itemize}
+  \item \textbf{F1-macro}: medie egală între clase (sensibil la rare/frecvente).
+  \item \textbf{AP per clasă} și \textbf{curbe Precizie–Recall}: robuste la dezechilibru.
+  \item \textbf{Analiza co-ocurențelor}: evidențiază \textbf{relațiile emoționale} în date.
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{l p{0.62\linewidth}}
+\hline
+\textbf{Metrică} & \textbf{Captură teoretică} \\
+\hline
+F1-macro & Echilibru la nivel de clasă (medie F1 per emoție) \\
+Average Precision & Arie sub PR-curve (sensibil la dezechilibru) \\
+Exact-match & Potrivire vectorială completă (strict) \\
+Micro / Samples F1 & Agregare la nivel de instanță (distribuție globală) \\
+\hline
+\end{tabular}
+\caption{Metrici utilizate și semnificația lor.}
+\label{tab:metrici}
+\end{table}
+
+\subsection{Explicație pe înțelesul tuturor: „Clasamentul corect”}
+Dacă vrei să compari doi alergători, nu te uiți doar la sprint (precizie) sau doar la maraton (recall). F1 combină ambele într-un \emph{singur} punct. Versiunea \emph{macro} înseamnă că fiecare emoție „prinde voce”—chiar și cele rare. AP (Average Precision) privește întreaga \emph{curbă} precizie–recall: cât de bine se descurcă sistemul indiferent de „pragurile” alese.
+
+\section{Explicabilitate și trasabilitate}
+\label{sec:xai}
+
+\subsection{Hărți de atenție/activare}
+\textbf{Atribuirea vizuală} evidențiază \textbf{regiunile de suport} pentru decizie. Asigură \textbf{transparență} și \textbf{aliniere cognitivă} fără a altera predicția.
+
+\subsection{Diagrama canalului de explicabilitate}
+\begin{figure}[ht]
+\centering
+\begin{tabular}{c}
+\boxblock{Imagine + Model (local–global)} \\
+$\Downarrow$ \\
+\boxblock{Activări interne / atenții multi-head} \\
+$\Downarrow$ \\
+\boxblock{Proiecție în spațiul imaginii (hărți explicative)} \\
+$\Downarrow$ \\
+\boxblock{Vizualizare regiunilor relevante (pentru emoții/stil/autor)} \\
+\end{tabular}
+\caption{Flux conceptual pentru explicabilitate vizuală.}
+\label{fig:xai}
+\end{figure}
+
+\subsection{Explicație pe înțelesul tuturor: „Lanterna din muzeu”}
+Ghidul din muzeu îți arată cu lanterna \emph{unde} să te uiți ca să înțelegi de ce o lucrare e specială. Hărțile de atenție fac exact asta: luminează bucățile de imagine care au cântărit în decizia modelului. Nu schimbă decizia, doar o \emph{explică}.
+
+\section{Securitate și verificarea autenticității}
+\label{sec:security}
+
+\subsection{Semnătură emoțională invizibilă}
+Rezultatul analizei (vector emoțional + metadate) este \textbf{înglobat invizibil} în imagine, sub \textbf{constrângeri perceptuale} (PSNR ridicat). Proprietăți:
+\begin{itemize}
+  \item \textbf{Imperceptibilitate}: modificări sub pragul de detecție uman.
+  \item \textbf{Robustețe practică}: persistență la operații comune de stocare (rezonabil).
+  \item \textbf{Verificabilitate}: \textbf{extragerea} semnăturii certifică \textbf{autenticitatea}.
+\end{itemize}
+
+\begin{figure}[ht]
+\centering
+\begin{tabular}{c}
+\boxblock{Vector emoțional + metadate} \\
+$\Downarrow$ \\
+\boxblock{Codare + Înglobare invizibilă (control distorsiune)} \\
+$\Downarrow$ \\
+\boxblock{Imagine semnată invizibil (amprentă emoțională)} \\
+$\Downarrow$ \\
+\boxblock{Verificare ulterioară: extracție + validare integritate} \\
+\end{tabular}
+\caption{Lanț de încredere: semnătură invizibilă emoțională și verificare.}
+\label{fig:watermark}
+\end{figure}
+
+\subsection{Explicație pe înțelesul tuturor: „Mesajul în șoaptă”}
+Semnătura invizibilă e ca un mesaj spus în șoaptă, doar celor care știu să-l asculte. Nu strică frumusețea tabloului (imperceptibilitate), dar lasă o urmă verificabilă. Când extragi semnătura, poți dovedi: \emph{„Această analiză aparține acestei imagini.”}
+
+\section{Structură logică și funcțională}
+\label{sec:functional}
+
+\subsection{Vedere de ansamblu}
+\begin{figure}[ht]
+\centering
+\scalebox{0.85}{
+\begin{tabular}{c}
+\boxblock{Achiziție \& Pre-procesare} \\
+$\Downarrow$ \\
+\begin{tabular}{cc}
+\smallbox{Inferență locală\\(CNN)} & \smallbox{Inferență globală\\(Transformer)} \\
+\end{tabular}\\
+$\Downarrow$ \\
+\boxblock{Fuziune reprezentări $\Rightarrow$ Logits $\Rightarrow$ Sigmoid} \\
+$\Downarrow$ \\
+\boxblock{Praguri per clasă $\Rightarrow$ Vector emoții} \\
+$\Downarrow$ \\
+\begin{tabular}{ccc}
+\smallbox{Explicabilitate} & \smallbox{Narațiune asistată} & \smallbox{Semnătură invizibilă / Verificare} \\
+\end{tabular}
+\end{tabular}
+}
+\caption{Flux funcțional integrat al sistemului ArtAdvisor.}
+\label{fig:flow}
+\end{figure}
+
+\subsection{Poveste scurtă: „Curatorul și Asistentul”}
+Un curator privește o lucrare nouă. Asistentul AI (ArtAdvisor) îl ghidează:
+\begin{quote}
+„Privește textura aici (local), observă compoziția acolo (global). Emoțiile dominante par a fi \emph{anticipare} și \emph{surpriză}. Dacă vrei să înțelegi de ce, pot să-ți arăt regiunile decisive (hărți de atenție). Ți-am ascuns și analiza în imagine—o poți verifica oricând (semnătură invizibilă).”
+\end{quote}
+Nu i-a spus \emph{cum} calculează fiecare detaliu, dar i-a arătat \emph{logica} deciziei. Asta face acest capitol: trasează harta conceptuală.
+
+\section{Argumentarea opțiunilor de proiectare}
+\label{sec:argumente}
+
+\subsection{Motivații-cheie (sinteză)}
+\begin{itemize}
+  \item \textbf{Fuziune local–global}: \emph{complementaritate} între texturi (locale) și compoziție (globală).
+  \item \textbf{BCE cu logits}: \emph{formulare naturală} pentru multi-etichetă + \emph{stabilitate numerică}.
+  \item \textbf{Praguri per clasă}: \emph{calibrare} la prevalențe distincte, maximizare \textbf{F1} pe validare.
+  \item \textbf{Ponderare/eșantionare}: \emph{control} al dezechilibrului în învățare.
+  \item \textbf{Explicabilitate + trasabilitate}: \emph{încredere} operațională și \emph{auditabilitate}.
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{l l p{0.5\linewidth}}
+\hline
+\textbf{Decizie} & \textbf{Variantă} & \textbf{Argument teoretic} \\
+\hline
+Fuziune & Features (aleasă) & Maximizează informatie locală + globală; reduce ambiguitatea deciziei. \\
+Prag & Per clasă (ales) & Compensează prevalențe; aliniază decizia la optimul F1 per emoție. \\
+Cost & BCE logits (ales) & Independență pe etichetă, robust la multi-etichetă. \\
+Sampling & Ponderare (ales) & Echilibrează influența claselor rare în gradient. \\
+\hline
+\end{tabular}
+\caption{Opțiuni de proiectare și justificarea alegerilor.}
+\label{tab:design}
+\end{table}
+
+\subsection{Explicație pe înțelesul tuturor: „De ce așa și nu altfel?”}
+E ca la o echipă: ai un jucător excelent la „dribling” (CNN—detaliu) și un strateg (Transformer—viziune). Împreună joacă mai bine decât separat. Pragurile per clasă sunt „tactica” pe adversar (distribuția emoțiilor). Iar explicabilitatea e conferința de presă: explici \emph{de ce} ai jucat așa.
+
+\section{Limitări și considerente}
+\label{sec:limitari}
+\begin{itemize}
+  \item \textbf{Subiectivitatea etichetelor}: reflectă \emph{consens statistic}, nu un adevăr absolut.
+  \item \textbf{Shift de domeniu}: stiluri foarte atipice pot necesita \textbf{recalibrare} a pragurilor.
+  \item \textbf{Dezechilibru extrem}: pentru emoții foarte rare, \textbf{incertitudinea} pragului crește.
+  \item \textbf{Semnătură invizibilă}: operații distructive (recadrări severe, compresii agresive) pot \textbf{degrada} semnătura.
+\end{itemize}
+
+\subsection{Perspectivă pragmatică}
+Acest cadru nu promite perfecțiune absolută—promite \emph{echilibru} și \emph{transparență}. Când datele se schimbă, thresholds se pot recalibra. Când apar stiluri „exotice”, e sănătos să revalidezi. Important este că \emph{ai un instrument} coerent, explicabil și responsabil.
+
+\section{Mini-glosar colocvial}
+\noindent\textbf{Logit}: „Scorul brut” înainte de a fi comprimat între 0 și 1.\par
+\noindent\textbf{Sigmoid}: „Butonul” care transformă orice scor într-o probabilitate.\par
+\noindent\textbf{Prag (threshold)}: Linia care desparte „probabil da” de „probabil nu”.\par
+\noindent\textbf{F1-macro}: Media echitabilă a perfomanței pe fiecare emoție.\par
+\noindent\textbf{Dropout}: Pauză controlată pentru unele conexiuni, ca să nu „se obișnuiască” prea tare.\par
+\noindent\textbf{Hărți de atenție}: Lanternele care arată „de ce” a decis modelul.\par
+\noindent\textbf{Semnătură invizibilă}: Mesaj ascuns, verificabil, în imagine.
+
+\section{Sinteză}
+\label{sec:concl}
+Am fundamentat o soluție \textbf{multi-etichetă} bazată pe \textbf{arhitectura local–global} și \textbf{decizie calibrată} prin praguri per emoție. Componentele de \textbf{robustețe}, \textbf{explicabilitate} și \textbf{trasabilitate} întregesc valoarea teoretică și operațională a sistemului. 
+\medskip
+
+\noindent\textbf{Pe scurt, ca o poveste:} Privim arta cu lupă și cu hartă, ascultăm „corul” emoțiilor fără să lăsăm o voce să domine, reglăm fin butoanele pentru fiecare emoție, explicăm de ce am decis, și lăsăm o semnătură discretă care \emph{păstrează} povestea. Aceste principii pregătesc trecerea firească către \textbf{Capitolul 5} (Proiectare de detaliu și implementare), unde structura logică va fi instanțiată la nivel de module, interfețe și contracte.
