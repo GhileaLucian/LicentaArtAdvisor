@@ -1,0 +1,29 @@
+# LaTeX build artifacts (nu le urcăm)
+*.aux
+*.bbl
+*.blg
+*.bcf
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.lot
+*.lof
+*.idx
+*.ilg
+*.ind
+
+# (opțional) evită PDF dacă nu vrei să-l versiunezi
+# *.pdf
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Backup
+*~

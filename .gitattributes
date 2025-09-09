@@ -1,0 +1,5 @@
+*.tex text eol=lf
+*.sty text eol=lf
+*.bib text eol=lf
+*.md  text eol=lf
+*.svg text eol=lf
