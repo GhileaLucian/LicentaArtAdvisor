@@ -1,0 +1,168 @@
+% Define the \AppScreen command for displaying application screenshots
+\newcommand{\AppScreen}[2]{%
+  \begin{figure}[H]
+    \centering
+  \includegraphics[width=0.90\textwidth,keepaspectratio]{#1}
+    \caption{\small #2}
+  \end{figure}
+}
+
+\chapter{Manual de instalare și utilizare}
+\label{ch:install_use}
+\pagestyle{fancy}
+
+Acest capitol descrie instalarea și utilizarea aplicației \textbf{ArtAdvisor} pentru analizarea operelor de artă (stil, autor, emoții), generarea de interpretări narative și protecție prin semnătură digitală emoțională.
+
+\section{Instalare}
+\subsection{Cerințe hardware și software}
+\subsubsection{Hardware minim}
+\begin{itemize}[noitemsep,topsep=2pt]
+  \item Procesor x64; \textbf{8 GB RAM} (recomandat \textbf{16 GB})
+  \item Spațiu pe disc: \textbf{2--5 GB} (modele, librării, cache)
+  \item GPU NVIDIA opțional: CUDA 11.8+
+\end{itemize}
+
+\subsubsection{Sisteme de operare}
+\begin{itemize}[noitemsep,topsep=2pt]
+  \item Windows 10/11 (64-bit) -- recomandat
+  \item Ubuntu 20.04+ / Debian-based
+  \item macOS 12+ (CPU)
+\end{itemize}
+
+\subsubsection{Software necesar}
+\begin{itemize}[noitemsep,topsep=2pt]
+  \item \textbf{Python 3.10/3.11}, \textbf{pip}, \textbf{Git}
+  \item \textbf{PyTorch} (CPU/CUDA)
+  \item Pachete: \texttt{streamlit}, \texttt{torchvision}, \texttt{torchcam}, \texttt{pillow}, \texttt{opencv-python}, \texttt{plotly}, \texttt{pandas}, \texttt{numpy}
+  \item Opțional PDF: \texttt{wkhtmltopdf}/\texttt{pdfkit} sau \texttt{weasyprint}
+  \item Opțional audio/narațiune: cheie \textbf{OpenAI} (\texttt{OPENAI\_API\_KEY})
+\end{itemize}
+
+\subsection{Pași de instalare (Windows)}
+\subsubsection{1) Obținerea codului}
+\begin{verbatim}
+folder local \texttt{D:\textbackslash LicentaArtWorks\textbackslash ArtAdvisorUI\textbackslash}.
+
+\subsubsection{2) Mediu virtual}
+\begin{verbatim}
+python -m venv .venv
+.venv\Scripts\activate  # Windows
+\end{verbatim}
+
+\subsubsection{3) Dependente PyTorch}
+\begin{verbatim}
+# CPU
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+# CUDA 12.1
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+\end{verbatim}
+
+\subsubsection{4) Pachete suplimentare}
+\begin{verbatim}
+pip install streamlit torchcam pillow opencv-python plotly pandas numpy
+\end{verbatim}
+
+\subsubsection{5) Modele antrenate}
+Creați \texttt{models/} și copiați:
+\begin{itemize}[noitemsep,topsep=2pt]
+  \item \texttt{model\_licenta\_definitiv.pth} (emoții - 14 clase)
+  \item \texttt{model\_stil\_efficientnet.pth} (stiluri)
+  \item \texttt{model\_autor.pth} (autori)
+\end{itemize}
+
+\subsubsection{6) Cheie OpenAI (opțional)}
+\begin{verbatim}
+setx OPENAI_API_KEY "cheia_voastra"
+\end{verbatim}
+
+\subsubsection{7) Pornire aplicație}
+\begin{verbatim}
+streamlit run app_ultra_premium.py
+\end{verbatim}
+Browser: \texttt{http://localhost:8501}
+
+\subsubsection{Depanare}
+\begin{itemize}[noitemsep,topsep=2pt]
+  \item \emph{Modele lipsă}: verificați \texttt{.pth} în \texttt{models/}
+  \item \emph{Eroare torchcam}: \texttt{pip install torchcam}
+  \item \emph{CUDA erori}: reinstalați PyTorch CPU
+  \item \emph{Fără OpenAI}: narațiune/audio limitate
+\end{itemize}
+
+\section{Utilizare}
+Interfața are cinci secțiuni principale: \textbf{Analiză Operă}, \textbf{Galerie}, \textbf{Verificare}, \textbf{Chat Artist}, \textbf{Laborator Emoțional}.
+
+\subsection{Analiză Operă}
+\subsubsection{Flux de lucru}
+\begin{enumerate}[noitemsep,topsep=2pt]
+  \item \textbf{Încarcă imagine} (JPG/PNG)
+  \item Opțional: \emph{crop manual} sau \emph{detectare automată}
+  \item \textbf{Începe Analiza Completă}:
+  \begin{itemize}[noitemsep,topsep=1pt]
+    \item Identifică stil/autor (cu Grad-CAM)
+    \item Detectează emoții (multi-etichetă)
+    \item Generează narațiune + audio (dacă OpenAI)
+    \item Descarcă raport HTML
+  \end{itemize}
+  \item \textbf{Protecție Digitală}: aplică semnătură emoțională
+\end{enumerate}
+
+\AppScreen{figs/CAPITOLUL 7/ART_ADVISOR_CROP.png}{Analiza -- \^{\i}nc\u{a}rcare \c{s}i selectarea zonei tabloului (crop).}
+
+\AppScreen{figs/CAPITOLUL 7/ART_ADVISOR_INTERPRETARE.png}{Rezultate analitice \c{s}i interpretare narativ\u{a}: stil, autor, emo\c{t}ii, audio.}
+
+\AppScreen{figs/CAPITOLUL 7/ART_ADVISOR_PROIECTIE_DIGITALA.png}{Protec\c{t}ie Digital\u{a}: aplicarea Semn\u{a}turii Emo\c{t}ionale \c{s}i export imagine semnată.}
+
+\subsection{Galerie}
+Afișează colecția de opere analizate cu filtre inteligente:
+\begin{itemize}[noitemsep,topsep=2pt]
+  \item \textbf{Stil} \& \textbf{Autor}, \textbf{Emoție dominantă}, \textbf{Perioadă}, \textbf{Calitate}
+  \item Detalii: scoruri, descriere narativă, emoții predominante
+\end{itemize}
+
+\AppScreen{figs/CAPITOLUL 7/ART_ADVISOR_GALERIE.png}{Galerie -- colec\c{t}ia personal\u{a} cu filtre dup\u{a} stil, autor, emo\c{t}ie dominant\u{a}.}
+
+\subsection{Verificare (autenticitate semnătură)}
+Citește semnătura invizibilă și confirmă autenticitatea:
+\begin{itemize}[noitemsep,topsep=2pt]
+  \item Încărcați imaginea cu semnătură
+  \item Apăsați \textbf{Începe Verificarea}
+  \item Afișează emoții extrase + metadate (timestamp, versiune)
+\end{itemize}
+
+\AppScreen{figs/CAPITOLUL 7/ART_ADVISOR_VERIFICARE.png}{Verificare -- validarea semn\u{a}turii emo\c{t}ionale \c{s}i recuperarea emo\c{t}iilor \& metadatelor.}
+
+\subsection{Chat Artist}
+Interacționați cu personaje artistice (Van Gogh, Leonardo, Monet, Picasso):
+\begin{itemize}[noitemsep,topsep=2pt]
+  \item Alegeți artistul și adresați întrebare
+  \item Sistemul utilizează contextul analizei curente (stil/emoții)
+\end{itemize}
+
+\AppScreen{figs/CAPITOLUL 7/ART_ADVISOR_CHAT.png}{Chat Artist -- dialog educa\c{t}ional cu mari personalit\u{a}\c{t}i ale artei.}
+
+\subsection{Laborator Emoțional}
+Permite testarea robustă a detecției emoțiilor:
+\begin{itemize}[noitemsep,topsep=2pt]
+  \item Încărcați specimen, aplicați transformări (sepia, monocrom, temperatură, saturație, luminozitate, contrast)
+  \item Comparați vectorul emoțional înainte/după + metrici de stabilitate
+\end{itemize}
+
+\AppScreen{figs/CAPITOLUL 7/ART_ADVISOR_LABORATOR_EMOTIONAL.png}{Laborator Emo\c{t}ional -- compara\c{t}ie vizual\u{a} a vectorilor emo\c{t}ionali (original vs. modificat).}
+
+\section{Recomandări de bune practici}
+\begin{itemize}[noitemsep,topsep=2pt]
+  \item Folosiți imagini \emph{clare, bine iluminate}, centrate, fără elemente perturbatoare
+  \item Pentru rezultate stabile, utilizați izolarea zonei tabloului (crop)
+  \item Dacă GPU indisponibil, rulați pe CPU -- viteza scade, dar rezultatele rămân corecte
+  \item Exportați raportul HTML și utilizați Ctrl+P pentru PDF
+\end{itemize}
+
+\section{Întrebări frecvente (FAQ)}
+\begin{itemize}[noitemsep,topsep=2pt]
+  \item \textbf{Nu se generează audio/narațiune?} Verificați \texttt{OPENAI\_API\_KEY}
+  \item \textbf{Modelele nu se încarcă?} Verificați fișierele \texttt{.pth} în \texttt{models/}
+  \item \textbf{PDF nu se creează direct?} Exportați HTML și salvați ca PDF din browser
+\end{itemize}
+
+Prin acest manual, instalarea şi utilizarea \textbf{ArtAdvisor} devin accesibile oricărui utilizator final. Capturile ilustrează fiecare pas -- de la analiza operei, galeria personală, protecția digitală şi verificarea autenticității, până la interacțiunea educațională cu marii artiști şi validarea robustă a emoțiilor.
