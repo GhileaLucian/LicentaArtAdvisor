@@ -1,18 +1,49 @@
 \chapter{Proiectare de detaliu și implementare}
 \label{ch:design_impl}
 
-% ===================== AVERTISMENT IMPORTANT ===========================
-% Conform solicitării autorului:
-% 1. Textul ORIGINAL furnizat a fost păstrat ÎN MOD IDENTIC (fără alterări).
-% 2. S-au ADAUGAT doar secțiuni/extensii suplimentare după paragrafele existente.
-% 3. S-au introdus clar DOAR contribuțiile personale (Lucian), fără a revendica munca altor membri.
-% 4. S-au adăugat explicații tehnice extinse, analize, tabele, algoritmi și detalii de mentenanță
-%    pentru a crește consistența și volumul capitolului.
+% ===================== NOTA PRIVIND CONTRIBUȚIILE ===========================
+% Acest capitol documentează implementarea modulului de recunoaștere a emoțiilor
+% în opere de artă, dezvoltat personal de autorul Lucian Ghilea.
+% Se menționează contextual integrarea cu componentele dezvoltate de colegul
+% David Iakabos pentru înțelegerea completă a sistemului.
 % ======================================================================
 
-Acest capitol documentează soluția implementată pentru recunoașterea emoțiilor în opere de artă și integrarea ei în aplicația ArtAdvisor. Sunt prezentate (i) obiectivele practice ale implementării, (ii) arhitectura generală și relațiile dintre module, (iii) structura proiectului și responsabilitățile, (iv) backend-ul ML (date, dataset, model, antrenare și calibrare), (v) serviciul de inferență și orchestrarea predictorilor, (vi) interfața utilizator, (vii) mecanismele de securitate, (viii) diagramele de clase și (ix) principiile de extensibilitate. Secțiunea finală sintetizează deciziile și pregătește trecerea către testare (Cap. 6).
+Acest capitol documentează soluția implementată pentru \textbf{recunoașterea emoțiilor în opere de artă} și integrarea acesteia în aplicația ArtAdvisor. 
 
-\bigskip
+\section*{Obiectivul și contextul implementării}
+Scopul implementării este transformarea cadrului teoretic fundamentat anterior (Capitolul~\ref{ch:analiza}) într-un subsistem operațional robust pentru \textbf{analiza emoțională}, dezvoltat personal de autor.
+
+\subsection*{Contribuția personală implementată}
+Prezentul capitol se concentrează pe următoarele aspecte dezvoltate de autor:
+\begin{itemize}
+    \item \textbf{Curățarea și pregătirea datelor} pentru antrenarea modelului emoțional
+    \item \textbf{Antrenarea ansamblului CNN+ViT} pentru emoții multi-etichetă
+    \item \textbf{Calibrarea pragurilor} per emoție pentru optimizarea deciziilor
+    \item \textbf{Orchestrarea unificată} a predictorilor emoționali
+    \item \textbf{Generarea narațiunilor} și integrarea text-to-speech
+    \item \textbf{Inserarea semnăturii digitale} emoționale pentru trasabilitate
+    \item \textbf{Dezvoltarea interfeței Streamlit} cu tab-urile specifice emoțiilor
+\end{itemize}
+
+\subsection*{Integrarea cu componentele colaborative}
+Pentru contextul complet al sistemului, se menționează că David Iakabos a dezvoltat:
+\begin{itemize}
+    \item Clasificarea stilurilor artistice și identificarea autorilor
+    \item Implementarea Grad-CAM pentru explicabilitate vizuală
+    \item Generarea rapoartelor HTML și sistemul de feedback
+\end{itemize}
+
+Sunt prezentate:
+\begin{enumerate}
+  \item \textbf{Obiectivele practice} ale implementării
+  \item \textbf{Arhitectura generală} și relațiile dintre module
+  \item \textbf{Structura proiectului} și responsabilitățile
+  \item \textbf{Backend-ul ML} (date, dataset, model, antrenare și calibrare)
+  \item \textbf{Serviciul de inferență} și orchestrarea predictorilor
+  \item \textbf{Interfața utilizator} cu focus pe modulele emoționale
+  \item \textbf{Mecanismele de securitate} și trasabilitate
+  \item \textbf{Diagramele de clase} și principiile de extensibilitate
+\end{enumerate}
 
 % --- Macrocomenzi pentru diagrame tip "bloc" (definite în Cap. 4) ---
 \newcommand{\boxblock}[2][0.86\linewidth]{\fbox{\parbox{#1}{\centering #2}}}

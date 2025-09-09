@@ -1,33 +1,49 @@
 \chapter{Concluzii}
 \label{ch:concluzii}
 
-Acest capitol încheie lucrarea, sintetizând contribuțiile realizate, evaluând critic rezultatele şi conturând direcții clare de dezvoltare. Accentul cade pe modul în care analiza emoțională asistată de inteligență artificială poate fi îmbinată cu mecanisme de verificare a autenticității pentru a crește încrederea utilizatorilor şi valoarea practică a platformei \textbf{ArtAdvisor}.
+Acest capitol încheie lucrarea, sintetizând \textbf{contribuțiile personale realizate de autor} în domeniul recunoașterii emoțiilor din opere de artă, evaluând critic rezultatele şi conturând direcții clare de dezvoltare. 
 
-\section{Rezumatul contribuțiilor}
-Lucrarea îmbină dezvoltarea ML cu integrarea UI şi cu un modul de securitate ușor de folosit de către utilizatorul final. Pe scurt:
+Accentul cade pe modul în care \textbf{analiza emoțională} asistată de inteligență artificială, dezvoltată în cadrul acestei lucrări, poate fi îmbinată cu mecanisme de verificare a autenticității pentru a crește încrederea utilizatorilor şi valoarea practică a platformei ArtAdvisor.
+
+\section{Rezumatul contribuțiilor personale}
+Lucrarea prezentă se concentrează pe \textbf{dezvoltarea modulului de recunoaștere a emoțiilor}, îmbinând cercetarea ML cu integrarea UI și cu un modul de securitate ușor de folosit de către utilizatorul final. 
+
+\subsection*{Contribuțiile principale ale autorului}
 \begin{enumerate}
-  \item \textbf{Ingineria datelor pentru emoții}
+  \item \textbf{Ingineria datelor pentru emoții (Contribuție personală)}
   \begin{itemize}
-    \item Colectarea, filtrarea şi curățarea unui set de date dedicat recunoașterii emoțiilor în picturi; eliminarea intrărilor ambigue şi standardizarea etichetelor.
-    \item Construirea de fișiere CSV coerente şi direct utilizabile pentru antrenare/validare/test.
+    \item Colectarea, filtrarea şi curățarea unui set de date dedicat recunoașterii emoțiilor în picturi
+    \item Eliminarea intrărilor ambigue şi standardizarea etichetelor pentru 14 emoții
+    \item Construirea de fișiere CSV coerente şi direct utilizabile pentru antrenare/validare/test
   \end{itemize}
 
-  \item \textbf{Model multi--label pentru emoții (EfficientNet-B2 + ViT)}
+  \item \textbf{Model multi-etichetă pentru emoții CNN + ViT (Contribuție personală)}
   \begin{itemize}
-    \item Antrenarea unui ansamblu CNN + Transformer pentru detecția simultană a mai multor emoții.
-    \item Calibrarea pragurilor \emph{per clasă} pe validare pentru decizii robuste.
-    \item Performanță finală competitivă pe test (F1-Macro $\approx$ 0.77), având în vedere complexitatea subiectivă a emoțiilor.
+    \item Dezvoltarea și antrenarea unui ansamblu EfficientNet-B2 + Transformer pentru detecția simultană a mai multor emoții
+    \item Implementarea și calibrarea pragurilor \emph{per clasă} pe validare pentru decizii robuste
+    \item Performanță finală competitivă pe test (F1-Macro $\approx$ 0.77), având în vedere complexitatea subiectivă a emoțiilor
   \end{itemize}
 
-  \item \textbf{Interfață modernă şi explorare interactivă}
+  \item \textbf{Interfață modernă şi explorare interactivă (Contribuție personală)}
   \begin{itemize}
-    \item Taburi dedicate: \emph{Analiză Operă}, \emph{Galerie}, \emph{Verificare}, \emph{Chat Artist}, \emph{Laborator Emoțional}.
-    \item Experiență fluentă: vizualizări Grad-CAM, generare narativă şi \emph{text-to-speech}, filtre inteligente în Galerie.
+    \item Dezvoltarea tab-urilor dedicate emoțiilor: \emph{Galerie}, \emph{Verificare}, \emph{Laborator Emoțional}
+    \item Implementarea experiențelor fluente: vizualizări pentru emoții, integrare \emph{text-to-speech}, filtre inteligente în Galerie
+    \item Crearea sistemului de explorare bazat pe profiluri emoționale
   \end{itemize}
 
-  \item \textbf{Verificare, autenticitate şi robustețe}
+  \item \textbf{Verificare, autenticitate şi robustețe (Contribuție personală)}
   \begin{itemize}
-    \item \emph{Semnătură Digitală Emoțională} prin LSB, invizibilă, dar verificabilă.
+    \item Dezvoltarea \emph{Semnăturii Digitale Emoționale} prin LSB, invizibilă dar verificabilă
+    \item Implementarea mecanismelor de trasabilitate pentru rezultatele emoționale
+    \item Testarea robustetii sistemului în condiții diverse
+  \end{itemize}
+
+  \item \textbf{Contextul colaborativ}
+  \begin{itemize}
+    \item \emph{Nota}: Componente complementare (clasificare stil/autor, Grad-CAM, chat AI) au fost implementate de David Iakabos
+    \item Integrarea seamlessly a modulului emoțional cu arhitectura generală a sistemului
+  \end{itemize}
+\end{enumerate}
     \item Evaluarea calității cu PSNR (modificări invizibile pentru utilizator atunci când PSNR este ridicat, tipic $\geq 40$ dB).
     \item Detectarea modificărilor (tamper) şi jurnal de audit; simulări adversariale exploratorii (FGSM/PGD) pentru a observa sensibilitățile.
   \end{itemize}
