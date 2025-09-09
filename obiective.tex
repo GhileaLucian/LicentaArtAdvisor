@@ -4,57 +4,82 @@
 \section{Formularea temei}
 \label{sec:obiective-tema}
 
-\textbf{Tema propusă:} Dezvoltarea unei platforme computaționale pentru recunoașterea emoțiilor în opere de artă folosind \emph{inteligența artificială}. Platforma va permite analiza picturilor și identificarea emoțiilor pe care le transmit, oferind utilizatorilor o experiență interactivă și educativă în înțelegerea artei digitale.
+\textbf{Tema propusă:} Dezvoltarea unei platforme computaționale pentru recunoașterea emoțiilor în opere de artă folosind \textbf{inteligența artificială}. 
+
+Platforma va permite:
+\begin{itemize}
+    \item \textbf{Analiza picturilor} și identificarea emoțiilor pe care le transmit
+    \item \textbf{Oferirea unei experiențe interactive și educative} în înțelegerea artei digitale
+    \item \textbf{Prezentarea rezultatelor} într-un format accesibil și explicabil
+\end{itemize}
 
 Proiectul vizează \textbf{îmbinarea tehnologiei moderne cu aprecierea artistică}, facilitând accesul publicului larg la interpretarea și înțelegerea operelor de artă prin intermediul tehnologiei.
 
-\textbf{Soluția propusă oferă:}
-\begin{itemize}
-  \item \textit{Analiză emoțională completă} - identificarea și evaluarea emoțiilor transmise de fiecare operă de artă
-  \item \textit{Prezentare accesibilă} - rezultate prezentate în mod vizual și narativ pentru înțelegere facilă
-  \item \textit{Instrumente de validare} - mecanisme pentru verificarea și testarea robustetii analizelor efectuate
-\end{itemize}
+\subsection*{Soluția propusă oferă}
+\begin{enumerate}
+  \item \textbf{Analiză emoțională completă} - identificarea și evaluarea emoțiilor transmise de fiecare operă de artă
+  \item \textbf{Prezentare accesibilă} - rezultate prezentate în mod vizual și narativ pentru înțelegere facilă
+  \item \textbf{Instrumente de validare} - mecanisme pentru verificarea și testarea robusteții analizelor efectuate
+\end{enumerate}
 
 \section{Obiectiv general}
 \label{sec:obiectiv-general}
 
-\textbf{Obiectivul principal} al acestui proiect constă în realizarea unei platforme \emph{ArtAdvisor} care să permită \textit{analiza emoțională} a operelor de artă într-o manieră \textbf{accesibilă și precisă}.
+\textbf{Obiectivul principal} al acestui proiect constă în realizarea unei platforme \textbf{ArtAdvisor} care să permită \textbf{analiza emoțională} a operelor de artă într-o manieră \textbf{accesibilă și precisă}.
 
-Platforma va combina \emph{rigoarea științifică} cu \textit{claritatea prezentării}, oferind utilizatorilor posibilitatea să înțeleagă și să aprecieze operele de artă din perspectiva emoțională pe care acestea o transmit.
+Platforma combină \textbf{rigoarea științifică} cu \textbf{claritatea prezentării}, oferind utilizatorilor posibilitatea să înțeleagă și să aprecieze operele de artă din perspectiva emoțională pe care acestea o transmit.
 
-\textbf{Prin intermediul platformei ArtAdvisor}, utilizatorii vor avea acces la:
+\subsection*{Prin intermediul platformei ArtAdvisor, utilizatorii vor avea acces la}
 \begin{itemize}
-  \item \textit{Analiză emoțională precisă} și comprehensivă
-  \item \textit{Explicații clare} și ușor de înțeles
-  \item \textit{Instrumente de validare} pentru verificarea rezultatelor
+  \item \textbf{Analiză emoțională precisă și comprehensivă} bazată pe algoritmi de învățare automată
+  \item \textbf{Explicații clare și ușor de înțeles} pentru rezultatele obținute
+  \item \textbf{Instrumente de validare} pentru verificarea și testarea rezultatelor
+  \item \textbf{Interfață interactivă} cu multiple modalități de explorare a datelor
 \end{itemize}
 
 \section{Obiective specifice}
 \label{sec:obiective-specifice}
 
-\subsection{Analiza și interpretarea emoțiilor}
+Obiectivele specifice ale prezentei lucrări, centrate pe \textbf{contribuția personală a autorului} în domeniul recunoașterii emoțiilor, sunt organizate pe următoarele categorii:
+
+\subsection{Analiza și interpretarea emoțiilor (Contribuție personală)}
 \begin{itemize}
-  \item \textbf{Identificarea emoțiilor} - recunoașterea unui set de 14 emoții distincte în operele de artă
-  \item \textbf{Evaluarea intensității} - determinarea gradului de expresivitate pentru fiecare emoție identificată
+  \item \textbf{Identificarea emoțiilor} - recunoașterea unui set de 14 emoții distincte în operele de artă folosind arhitectura local-global dezvoltată
+  \item \textbf{Evaluarea intensității} - determinarea gradului de expresivitate pentru fiecare emoție identificată prin scoruri calibrate
+  \item \textbf{Profilul emoțional multi-etichetă} - permiterea co-existenței multiple emoții într-o singură operă
 \end{itemize}
 
-\subsection{Dezvoltarea modelului de recunoaștere}
+\subsection{Dezvoltarea modelului de recunoaștere (Contribuție personală)}
 \begin{itemize}
-  \item \textbf{Arhitectura sistemului} - crearea unui model capabil să analizeze \emph{caracteristicile locale și globale} ale imaginilor
-  \item \textbf{Calibrarea deciziilor} - stabilirea unor \textit{criterii adaptive} pentru identificarea corectă a emoțiilor dominante
+  \item \textbf{Arhitectura sistemului} - crearea unui model capabil să analizeze \textbf{caracteristicile locale și globale} ale imaginilor prin fuziunea CNN + Transformer
+  \item \textbf{Calibrarea deciziilor} - stabilirea unor \textbf{criterii adaptive} pentru identificarea corectă a emoțiilor dominante prin praguri per clasă
+  \item \textbf{Antrenarea robustă} - implementarea strategiilor de antrenare care să gestioneze dezechilibrele din date
 \end{itemize}
 
-\subsection{Validarea și testarea sistemului}
+\subsection{Validarea și testarea sistemului (Contribuție personală)}
 \begin{itemize}
-  \item \textbf{Protocoale de testare} - implementarea unor metode comprehensive de evaluare a performanței
-  \item \textbf{Testarea robustetii} - verificarea stabilității sistemului în condițiile modificărilor \emph{foto-realiste}
-  \item \textbf{Prezentarea rezultatelor} - dezvoltarea unor modalități \textit{clare și intuitive} de comunicare a analizelor
+  \item \textbf{Protocoale de testare} - implementarea unor metode comprehensive de evaluare a performanței (F1-macro, Average Precision)
+  \item \textbf{Testarea robusteții} - verificarea stabilității sistemului în condițiile modificărilor \textbf{foto-realiste}
+  \item \textbf{Prezentarea rezultatelor} - dezvoltarea unor modalități \textbf{clare și intuitive} de comunicare a analizelor
 \end{itemize}
 
-\subsection{Interfața și experiența utilizatorului}
+\subsection{Interfața și experiența utilizatorului (Contribuție personală)}
 \begin{itemize}
-  \item \textbf{Organizarea funcționalităților} - structurarea platformei în \emph{module distincte} pentru diferite tipuri de analize
-  \item \textbf{Accesibilitatea} - asigurarea unor opțiuni \textit{diverse de prezentare} a rezultatelor (vizual, audio, export)
+  \item \textbf{Organizarea funcționalităților} - structurarea platformei în \textbf{module distincte} pentru diferite tipuri de analize:
+  \begin{itemize}
+    \item \emph{Galerie} - explorarea și organizarea operelor după criterii emoționale
+    \item \emph{Verificare} - validarea și testarea analizelor emoționale
+    \item \emph{Laborator Emoțional} - experimentare avansată și analiză detaliată
+  \end{itemize}
+  \item \textbf{Accesibilitatea} - asigurarea unor opțiuni \textbf{diverse de prezentare} a rezultatelor (vizual, audio prin TTS, export)
+\end{itemize}
+
+\subsection{Integrarea cu sistemul colaborativ}
+\textbf{Nota:} Următoarele funcționalități sunt implementate de colegul David Iakabos și menționate aici pentru contextul complet al sistemului:
+\begin{itemize}
+  \item Clasificarea stilurilor artistice și identificarea autorilor
+  \item Generarea interpretărilor narative prin AI externe 
+  \item Chat-ul interactiv cu expertul artificial
 \end{itemize}
 
 \subsection{Cerințe funcționale}
